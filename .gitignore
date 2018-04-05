@@ -1,0 +1,7 @@
+#.py[co]
+env/
+.idea
+*.log
+*.sqlite
+instance/
+__pycache__

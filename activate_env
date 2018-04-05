@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ECHO 'activating env'
+. env/bin/activate

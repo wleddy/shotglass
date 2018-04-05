@@ -1,0 +1,393 @@
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 12pt;
+	font-family:inherit;
+	vertical-align: baseline;
+}
+
+/* Remember to define focus styles! */
+:focus {
+
+}
+
+/* End Resets */
+/* IE Hacks*/
+/*
+div {zoom:1;height:1%;}
+*/
+
+html {
+	background-color: white;
+	color:rgb(65,65,65);
+	font-family:helvetica,arial,sans-serif;
+}
+
+p
+{
+	margin-bottom:.5em;
+	line-height: 1.2;
+	font-size:100%;
+}
+
+strong {
+    font-weight:800;
+}
+a, .script-link, .cancel-link
+{
+text-decoration:underline;
+cursor:pointer;
+color:rgb(65,ff,65);
+}
+.no-decoration {
+	text-decoration:none;
+}
+
+hr {
+    border-top:1pt #999 solid;
+    margin:.25em 0;
+}
+
+dt { font-weight: bold; }
+
+ol, li, dl, dt, dd 
+{ 
+	line-height: 1.5em; 
+}
+
+code {
+    font-family:Monaco, "Courier New", courier, monospace;
+    font-size:.8em;
+    line-height:.8;
+}
+
+ input, textarea, button {
+    font-size:10pt;
+    font-family:helvetica,arial,sans-serif;
+ }
+input.num {text-align:right;}
+
+
+table, th, td, tr {
+border: 1pt #aaa solid;
+padding: 2pt 6pt;
+border-collapse: collapse;
+
+}
+/*
+table {margin: 10pt 0;}
+th {text-align:center;font-weight:bold;font-size:.8em;}
+td {text-align:left;}
+*/
+h1, h2, h3, h4, h5, h6 {
+	font-family: helvetica, arial, sans-serif;
+	font-weight: bold;
+	text-align: left;
+	background-color: transparent;
+	margin: 2% 0;
+	padding:0;
+	line-height:.8;
+}
+h1 { font-size: 250%; line-height:1;}
+h2 { font-size: 200%; }
+h3 { font-size: 150%; }
+h4 { font-size: 140%; }
+h5 { font-size: 120%; }
+h6 { font-size: 100%; }
+
+img
+{
+	border: 0;
+}
+
+/* clear any floats */
+.clear, .clearer {
+    clear:both;
+}
+.form_button_row {
+    margin-bottom:0.5em;
+    padding-bottom:.25em;
+    border-bottom:1pt solid #666;
+    width:15em;
+}
+
+#dialog {
+    display:none;
+    background-color:#999;
+    opacity:.3;
+    z-index:1000;
+}
+
+#modal-form-contain {
+    display:none;
+    position:fixed;
+    top:3em;
+    left:30%;
+    z-index:1500;
+
+}
+#modal-form {
+    display:none;
+    position:fixed;
+    z-index:2000;
+    border:2pt solid #666;
+    background-color:white;
+    padding:1em;
+    margin:1em auto;
+    height:auto;
+}
+
+#contain {
+    margin:2em 4em;
+}
+div.authbar {
+    padding: 0.25em 0;
+    margin: 10px 0;
+    line-height: 1;
+    border: 1pt solid #666;
+    border-left:none;
+    border-right:none;
+    margin-left:9em;
+}
+div.authbar p {
+    margin:.25em;
+    padding-left:.5em;
+}
+
+div.signinprogress {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    height: 128px;
+    width: 128px;
+
+    -webkit-mask-image: url(/static/bikeSpinner.png);
+    background-color:#3d1; /* this sets the color of the spinner */
+    background-opacity:.5;
+    -webkit-animation-name: spinnerRotate;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;  
+}
+
+@-webkit-keyframes spinnerRotate {
+        from {
+                -webkit-transform:rotate(0deg);
+        }
+        to {
+                -webkit-transform:rotate(360deg);
+        }
+}
+
+
+a#header_home, a:hover#header_home, a:visited#header_home {
+    text-decoration:none;
+    font-size:inherit;
+    color:#222;
+}
+img#headerlogo {
+    height:118px;
+    padding-right:1em;
+    float:left;
+}
+#flasher_contain {
+    width:80%;
+    background-color:yellow;
+    padding:.5em;
+    border:1pt solid red;
+    margin-top:1em;
+    margin-bottom:1em;
+}
+p.flash {
+    font-style:italic;
+    line-height:1.2;
+    margin:0 0 0 1em;
+    font-size:.8em;
+}
+.alert {
+    color:#3333ff;
+}
+#super_menu {
+    width:20%;
+    float:left;
+    height:10em;
+}
+.admin_menu li{
+    list-style:none;
+}
+.admin_menu h5 {
+    margin-bottom:.5em;
+    margin-top:0;
+}
+
+p#addRecord {
+    padding-top:.5em;
+}
+
+div#eventRecordForm {
+    width:17em;
+    float:left;
+    padding-right:1em;
+}
+
+/*
+    countEvent Traveler List
+*/
+div#travelerListContain {
+    margin-left:20em;
+    
+}
+div#travelerList {
+    border:1pt solid black;
+    overflow-y:scroll;
+    width:340pt;
+    height:250pt;
+    margin-bottom:.5em;
+    font-size:90%;
+}
+div.eventTraveler {
+    padding:6px;
+}
+div.eventTravelereDetails p  {
+    margin: 0 3pt 0 63px;
+}
+p.eventTravelerIcon {
+    float:left;
+    width:57px;
+}
+
+p.eventTravlerActions {
+    clear:both;
+    text-align:right;
+    width:90%;
+    padding-top:.25em;
+}
+.eventTravelerActionSpacer {
+    padding-left:2em;
+}
+/*
+    countEvent Assignment List
+*/
+div#assignment-contain {
+    margin-top:1em;
+    padding-top:.1em;
+}
+div#assignmentList {
+    border:1pt solid black;
+    overflow-y:scroll;
+    width:42em;
+    min-height:20em;
+    clear:both;
+    padding: 1em;
+}
+
+p.assignmentActions{
+    text-align:right;
+    width:100%;
+    border-bottom:1pt #666 solid;
+}
+.assignmentActionSpacer {
+    padding-left:2em;
+}
+
+form#assignment-edit-trips-form {
+    max-height:400px;
+    overflow:auto;
+}
+table.assignment-edit-trips {
+    border:0;
+}
+.assignment-edit-trips th {
+    font-weight:bold;
+}
+.assignment-edit-trips-data input {
+    width:20px;
+    text-align:right;
+    font-weight:normal;
+}
+td.assignment-edit-trips-timeFrame-cell, th.assignment-edit-trips-timeFrame-cell {
+    text-align:center;
+    font-size:.2em;
+    border:0pt;
+    padding:0;
+    width:6em;
+}
+
+img.travelerIcon {
+    height:57px;
+    width:57px;
+    background-image:url(/static/count/images/unknown.png);
+}
+
+table.edit-form-table, table.edit-form-table th, 
+table.edit-form-table td, table.edit-form-table tr{
+    border-width:0px;
+    border-collapse:collapse;
+}
+table.edit-form-table th {
+    text-align:right;
+}
+table.edit-form-table td {
+    text-align:left;
+}
+
+#location-list {
+    width:200px;
+    padding:10px;
+    margin:10px auto;
+}
+.location-item-disable {
+    color:#666;
+}
+.location-item {
+    width:100%;
+    font-weight:bold;
+}
+
+.leaflet-control-attribution, .leaflet-control-attribution a {
+    /* let leaflet styling shine through */
+    font-size:inherit;
+    cursor:inherit;
+}
+
+/* the generic list and map search form */
+div#searchControls, div#mapExport, div#mapExport {
+    margin:10pt 0;
+}
+div#tripExport {display:none;}
+
+table.searchForm {
+    background-color:#eee;
+    border-collapse:collapse;
+    border: #aaa solid 1pt;
+}
+
+.searchForm th, .searchForm td, .searchForm th, .searchForm td {
+    border:none;
+    font-size:10pt;
+    padding:2px 2px 2px 2px;
+}
+.searchForm th, .searchForm th {
+    vertical-align:top;
+    text-align:right;
+    padding:2px 2px 2px 8px;
+}
+
+#exportTable.searhcForm th, #exportTable.searhcForm td{
+    padding: 8px 2px 0px 2px;
+}
+
+.disabled {
+    color:#999;
+}

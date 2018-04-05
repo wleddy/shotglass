@@ -1,0 +1,19 @@
+#!/bin/bash
+
+ECHO 'making env'
+
+virtualenv --python=python3 env
+
+. activate_env
+
+ECHO 'installing requirements'
+pip install -r requirements.txt
+
+ECHO 'create instance directory'
+mkdir instance
+touch instance/__init__.py
+cp default_site_settings.confg instance/site_settings.py
+
+ECHO "Don't forget to update site_settings and use create the initial database from migrations file."
+
+
