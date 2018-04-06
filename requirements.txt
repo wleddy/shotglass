@@ -2,3 +2,4 @@ flask
 flask-security
 flask-admin
 flask-sqlalchemy
+bcrypt

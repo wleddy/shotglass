@@ -41,12 +41,12 @@ mail = Mail(app)
 #import views.index
 #from views.utils import db_init, printException
 
-#from database import db_session, init_db
+from database import db_session, init_db
+from models import User, Role
 
 # Setup Flask-Security
-#from models import User, Role
-#user_datastore = SQLAlchemySessionUserDatastore(db,models.User, models.Role)
-#security = Security(app, user_datastore)
+user_datastore = SQLAlchemySessionUserDatastore(db_session,User, Role)
+security = Security(app, user_datastore)
 
 
 class UserModelView(ModelView):
@@ -64,8 +64,6 @@ class UserModelView(ModelView):
     form_excluded_columns.append('last_login_at')
     form_excluded_columns.append('login_count')
     
-from database import db_session
-from models import User, Role
     
 admin = Admin(app, name= app.config['SITE_NAME'], template_mode='bootstrap3')
 admin.add_view(UserModelView(User, db_session))
@@ -80,10 +78,9 @@ def before_request():
 ## the basic views
 
 @app.route('/')
-@login_required
+#@login_required
 def home():
     return render_template('index.html')
-    return 'Here you go! ' + current_user.email
     
 @app.route("/logout")
 def logout():
@@ -95,13 +92,20 @@ if __name__ == '__main__':
     """ Test to see if database file exists.
         if not, create it with init_db()
     """
+    db_location = app.config["DATABASE_PATH_PREFIX"] + app.config["DATABASE"]
     try:
-        f=open(app.config["DATABASE_PATH_PREFIX"] + app.config["DATABASE"],'r')
+        f=open(db_location,'r')
         f.close()
     except IOError as e:
-        print("Databse file does not exist. Use Migrations to create it.")
-        print("looked at " + app.config["DATABASE_PATH_PREFIX"] +  app.config["DATABASE"])
-        sys.exit(0)
+        with app.app_context():
+            try:
+                print("initializing Database at " + db_location)
+                init_db()
+            except Exception as e:
+                print("Database file was not created. Use Migrations to create it.")
+                print("Expected at " + db_location)
+                print(str(e))
+                sys.exit(0)
             
             
     app.run()

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from instance.site_settings import DATABASE_URI
+from instance.site_settings import DATABASE_URI, MAIL_USERNAME, MAIL_PASSWORD
 
 engine = create_engine(DATABASE_URI, \
                        convert_unicode=True)
@@ -18,3 +18,14 @@ def init_db():
     # you will have to import them first before calling init_db()
     import models
     Base.metadata.create_all(bind=engine)
+    db_session.commit()
+    
+    # Create a default admin user and role
+    role = models.Role("superuser")
+    db_session.add(role)
+    usr = models.User(MAIL_USERNAME,MAIL_PASSWORD)
+    db_session.add(usr)
+    db_session.commit()
+    userRole = models.RolesUsers(role.id, usr.id)
+    db_session.add(userRole)
+    db_session.commit()
