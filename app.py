@@ -62,7 +62,7 @@ class AdminBase(ModelView):
         if not self.is_accessible():
             return self.render("admin/denied.html")
 
-class UserModelView(AdminBase):
+class UserModelView(ModelView):
     # for list view
     can_create = False
     #can_edit = False
