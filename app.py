@@ -48,8 +48,21 @@ from models import User, Role
 user_datastore = SQLAlchemySessionUserDatastore(db_session,User, Role)
 security = Security(app, user_datastore)
 
+class AdminBase(ModelView):
+    # protect all admin views
+    roles_accepted = ['superuser', 'admin']
 
-class UserModelView(ModelView):
+    def is_accessible(self):
+        roles_accepted = getattr(self, 'roles_accepted', None)
+        return is_accessible(roles_accepted=roles_accepted, user=current_user)
+
+    def _handle_view(self, name, *args, **kwargs):
+        if not current_user.is_authenticated():
+            return redirect(url_for_security('login', next="/admin"))
+        if not self.is_accessible():
+            return self.render("admin/denied.html")
+
+class UserModelView(AdminBase):
     # for list view
     can_create = False
     #can_edit = False
