@@ -12,11 +12,7 @@ class RolesUsers(Base):
     id = Column(Integer(), primary_key=True)
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
     role_id = Column('role_id', Integer(), ForeignKey('role.id'))
-    
-    #def __init__(self,role_id,user_id):
-    #    self.role_id = role_id
-    #    self.user_id = user_id
-        
+
 
 class Role(Base, RoleMixin):
     __tablename__ = 'role'
@@ -26,16 +22,13 @@ class Role(Base, RoleMixin):
     
     def __repr__(self):
         return self.name
-        
-    #def __init__(self,name):
-    #    self.name = name
-    #    
-    
+
+
 class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True)
-    username = Column(String(255))
+    username = Column(String(255), unique=True)
     password = Column(String(255))
     first_name = Column(String(255))
     last_name = Column(String(255))
@@ -60,7 +53,3 @@ class User(Base, UserMixin):
             
         return full_name
         
-    #def __init__(self, email, password):
-    #    self.email = email
-    #    self.password = hash_password(password)
-    #
