@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block title %}Edit {{ g.title }}{% endblock %}
+{% block body %}
+<h3>{{ config.SITE_NAME }} User Menu</h3>
+<ul class="list-menu">
+    <li><a href="{{ url_for('login.login')}}" >Login</li>
+    <li><a href="{{ url_for('my_user.edit')}}" >Manage User Record</li>
+</ul>
+{% endblock body %}

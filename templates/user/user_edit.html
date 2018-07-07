@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Edit {{ g.title }}{% endblock %}
+{% block body %}
+	<h2>Edit {{ g.title }}</h2>	
+    <form action="{{ g.editURL }}{{rec.ID|default("0",true)}}/" method=post class="entry">
+		<input type=hidden name="ID" value="{{rec.ID|default("0",true)}}">
+      <dl>
+		{% include "editFormButtons.html" %}
+		<dt>Name:
+        <dd><input type=text size=30 name="name" value="{{rec.name}}"/>
+        <dt>Email:
+        <dd><input type=text size=30 name="email" value="{{rec.email|default("",true)}}"/>
+        <dt>User Name:
+        <dd><input type=text size=30 name="userName" value="{{rec.userName|default("",true)}}"/>
+        <dt>Password {% if currentPassword %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
+        <dd><input type=password size=30 name="password" value=""/>
+        <dt>Re-type password:
+        <dd><input type=password size=30 name="confirmPassword" value=""/>
+
+		{% if g.role == 'super' or g.role == 'admin' %}
+        <dt>Organizations:</dt>
+		{% for org in orgs %}
+		<dd>
+			<label><input type="checkbox" id="org_{{org.ID}}" name="orgs" value="{{org.ID}}" {% if org.ID in selectedOrgs %}checked="checked"{% endif %} />&nbsp;{{org.name}}</label>
+		</dd>
+		{% endfor %}
+        <dt>Role:</dt>
+		<dd><select name="role">
+			<option value="counter" {% if rec.role == 'counter' %}selected="selected" {% endif %}>counter</option>
+			<option value="admin" {% if rec.role == 'admin' %}selected="selected" {% endif %}>admin</option>
+		{% if g.role == 'super' %}
+			<option value="super" {% if rec.role == 'super' %}selected="selected" {% endif %}>super</option>
+		{% endif %}
+		</select></dd>
+		{% else %}
+		<input type=hidden name="role" value="{{rec.role|default("counter",true)}}">
+		{% endif %}
+		<input type=hidden name="org" value="{{g.orgID}}">
+        <dt>Inactive:<input type=checkbox  name="inactive" value="1" {% if rec.inactive %} checked="checked" {% endif %}/>
+      </dl>
+    </form>
+{% endblock %}

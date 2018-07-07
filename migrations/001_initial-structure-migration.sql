@@ -7,7 +7,7 @@ BEGIN;
 CREATE TABLE user(
 	"id" INTEGER NOT NULL, 
 	email VARCHAR(120) NOT NULL, 
-	userName VARCHAR(20), 
+	username VARCHAR(20), 
 	password VARCHAR(20), 
     first_name VARCHAR(255),
     last_name VARCHAR(255),
@@ -20,7 +20,7 @@ CREATE TABLE user(
     confirmed_at TIME,
 	PRIMARY KEY ("id"), 
 	UNIQUE (email), 
-	UNIQUE (userName)
+	UNIQUE (username)
 );
 
 CREATE TABLE role(
@@ -42,6 +42,7 @@ CREATE TABLE roles_users(
 COMMIT;
 
 -- Create a default user
+/* This is no longer needed
 BEGIN;
 
 INSERT INTO role (name, description) values ('superuser', 'Top level user');
@@ -50,3 +51,4 @@ INSERT INTO roles_users (user_id, role_id ) values ((select id from user where u
 
 
 COMMIT;
+*/
