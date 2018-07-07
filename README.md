@@ -1,18 +1,16 @@
 #Shot Glass
 
-This is designed as a starter Flask installation
+This is designed as a starter Flask installation with a minimum of dependancies.
 
-From the terminal run   . makeenv
+Currently there is no special database layer, just the standard sqlite3 package
 
-The virtualenvironment env/ will be created and requrirements.txt will be imported
+From the terminal enter   `. setup_env`
+
+The virtual environment env/ will be created and requrirements.txt will be imported
 
 Currently installs Python 3.x
 
-Includes:
-    * Flask, of course
-    * Flask-Admin
-    * Flask-Security
-    * Flask-WTF
-    * Flask-SQLAlchemy
-    * -- and all of the dependencies that go with that
-
+Required packages:
+    * Flask and it's default dependencies, of course
+    * Flask-mail
+    * sqlite3 (standard package)
