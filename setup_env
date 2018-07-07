@@ -30,6 +30,6 @@ fi
 
 ECHO ""
 
-ECHO "Don't forget to update site_settings and use create the initial database from migrations file."
+ECHO "Don't forget to update instance/site_settings.py before launching the app for the first time"
 
 
