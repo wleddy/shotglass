@@ -1,13 +1,20 @@
 import sqlite3
-from collections import namedtuple
+from namedlist import namedlist #Like namedtuples but mutable
 from views.users.login import getPasswordHash
 from views.utils import cleanRecordID
+from flask import g
+
 
 class Database:
     """Handle the basic database functions"""
     def __init__(self,filename=None):
+        from app import app
         if filename == None:
-            filename = 'app.db'
+            with app.app_context():
+                if 'db' in g:
+                    filename = g.db
+                else:
+                    filename = 'app.db'
         
         self.filename = filename
         self.connection = None
@@ -68,42 +75,67 @@ class _Table:
     @property
     def data_tuple(self):
         """return a namedtuple for use with this table"""        
-        return namedtuple('DataRow',"{}".format(",".join(self.get_column_names())))
+        return namedlist('DataRow',"{}".format(",".join(self.get_column_names())))
         
-    def rows_to_namedtuple(self,row_list):
-        """return a list of namedtuples based on the list of Row objects provided"""
+    def rows_to_namedlist(self,row_list):
+        """return a list of namedlists based on the list of Row objects provided"""
         out = None
         if row_list:
-            out = [self.data_tuple._make(rec) for rec in row_list]
+            #namedlist('DataRow',col_list,default=None)()
+            out = [self.data_tuple(*rec) for rec in row_list]
+        return out
+        
+    def new(self):
+        """return an 'empty' namedlist for the table"""
+        out = None
+        nones = ()
+        for x in self.get_column_names():
+            nones += (None,)
+            
+        out = self.data_tuple(*nones)
+        #out = nt(*nones)
+        
         return out
         
     def select(self,**kwargs):
         """
-            perform a basic SELECT query returning a list namedtuples for all columns
+            perform a basic SELECT query returning a list namedlists for all columns
             optional kwargs are:
                 where: text to use in the where clause
                 order_by: text to include in the order by clause
         """
         where = kwargs.get('where','1')
         order_by = kwargs.get('order_by',self.order_by_col)
+        sql = 'SELECT * FROM {} WHERE {} ORDER BY {}'.format(self.table_name,where,order_by,)
         
-        return self.rows_to_namedtuple(
+        return self.rows_to_namedlist(
             self.db.execute(
-                'SELECT * FROM {} WHERE {} ORDER BY {}'.format(self.table_name,where,order_by,)
+                sql
                 ).fetchall()
             )
+    
+    def select_one(self,**kwargs):
+        """a version of select method that returns a single named tuple or None"""
+        return self._single_row(self.select(**kwargs))
+        
+    def select_raw(self,sql,params=''):
+        """Returns a list of named tuples based on the sql text with optional string substitutions"""
+        return self.rows_to_namedlist(self.db.execute(sql,params).fetchall())
+        
+    def select_one_raw(self,sql,params=''):
+        """Return a single namedlist for sql select statement"""
+        return self._single_row(self.select_raw(sql,params))
             
+    def get(self,id):
+        """Return a list of a single namedlist for the ID or None"""
+        return self._single_row(self.select(where='id = {}'.format(cleanRecordID(id),)))
+        
     def _single_row(self,rows):
         """Return the first element of list rows or else None"""        
         if rows:
             if len(rows) > 0:
                  return rows[0]
         return None
-            
-        # ++++++++++++++++++
-    def get(self,id):
-        """Return a list of a single namedtuple for the ID or None"""
-        return self._single_row(self.select(where='id = {}'.format(cleanRecordID(id),)))
         
         
 class Role(_Table):
@@ -157,41 +189,53 @@ class User(_Table):
         super().__init__(db_connection)
         self.table_name = 'user'
             
-    def get(self,id,include_inactive=False,**kwargs):
-        """Return a list with a single namedtuple for the user with this id
+    def _active_only_clause(self,include_inactive=False,**kwargs):
+        """Return a clause for the select statement to include active only or empty string"""
+        include_inactive = kwargs.get('include_inactive',include_inactive)
+        if include_inactive:
+            return ""
+        
+        return 'and active = 1'
+        
+    def get(self,id,**kwargs):
+        """Return a single namedlist for the user with this id
             A keyword argument for include_inactive controls filtering
             of active users only
         """
-        include_inactive = kwargs.get('include_inactive',include_inactive)
-        where = 'id = {} {}'.format(cleanRecordID(id),('' if include_inactive else 'and active = 1'))
-
-        return self._single_row(self.rows_to_namedtuple(
-                self.db.execute('SELECT * FROM {} WHERE {} ORDER BY id'.format(self.table_name,where)).fetchall()
-                ))
-
-    def get_by_username_or_email(self,nameoremail):
-        """Return a single namedtuple obj or none based on the username or email"""
         
-        sql = "select * from {} where (username = ? or email = ?) and active = 1 order by id".format(self.table_name)
+        include_inactive = kwargs.get('include_inactive',False)
+        where = 'id = {} {}'.format(cleanRecordID(id),self._active_only_clause(include_inactive))
+
+        return self.select_one(where=where)
+
+    def get_by_username_or_email(self,nameoremail,**kwargs):
+        """Return a single namedlist obj or none based on the username or email"""
         
-        return self._single_row(
-                self.rows_to_namedtuple(
-                    self.db.execute(
-                    sql,(nameoremail,nameoremail,)
-                    ).fetchall()
-                )
-            )
+        include_inactive = kwargs.get('include_inactive',False)
+        
+        sql = "select * from {} where (username = ? or email = ?) {} order by id".format(self.table_name,self._active_only_clause(include_inactive))
+        
+        return self._single_row(self.select_raw(sql,(nameoremail,nameoremail)))
     
     def get_roles(self,userID,**kwargs):
-        """Return a list of the role namedtuple objects for the user's roles"""
+        """Return a list of the role namedlist objects for the user's roles"""
         
         order_by = kwargs.get('order_by','rank desc, name')
         sql = """select * from role where id in
                 (select role_id from user_role where user_id = ?) order by {}
                 """.format(order_by)
                 
-        return  Role(self.db).rows_to_namedtuple(self.db.execute(sql,(cleanRecordID(userID),)).fetchall())
-    
+        return  Role(self.db).rows_to_namedlist(self.db.execute(sql,(cleanRecordID(userID),)).fetchall())
+        
+    def select(self,**kwargs):
+        """Limit selection to active user only unless 'include_inactive' is true in kwargs"""
+        where = '{} {}'.format(kwargs.get('where','1'),self._active_only_clause(kwargs.get('include_inactive',False)))
+            
+        order_by = kwargs.get('order_by',self.order_by_col)
+        
+        return super().select(where=where,order_by=order_by)
+                
+        
     def create_table(self):
         sql = """
             'first_name' TEXT,
@@ -206,7 +250,7 @@ class User(_Table):
             'username' TEXT UNIQUE,
             'password' TEXT,
             'active' INTEGER DEFAULT 1,
-            'last_login' DATETIME 
+            'last_access' DATETIME 
             """
         super().create_table(sql)
         
@@ -227,16 +271,16 @@ class User(_Table):
             
             # Give the user super powers
             rec = self.get(1)
-            userID = rec['id']
-            rec = self.db.execute('select id from role where name = "super"').fetchone()
-            roleID = rec['id']
+            userID = rec.id
+            rec = Role(self.db).select_one(where='name = "super"')
+            roleID = rec.id
             self.db.execute('insert into user_role (user_id,role_id) values (?,?)',(userID,roleID))
             self.db.commit()
 
         
 def init_db(db):
+    """Create a intial user record."""
     Role(db).init_table()
     UserRole(db).init_table()
     User(db).init_table()
-    db.close()
     
