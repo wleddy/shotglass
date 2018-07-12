@@ -9,59 +9,28 @@ import linecache
 import sys
 import re
     
-def nowString():
-    """Return the timestamp string in the normal format"""
-    return datetime.now().isoformat()[:19]
     
-def getDatetimeFromString(dateString):
-    if type(dateString) is str: # or type(dateString) is unicode:
-        pass
-    else:
-        return None
-        
-    dateString = dateString[:19]
-    timeDelimiter = " "
-    if "T" in dateString:
-        timeDelimiter = "T"
 
-    formatString = '%Y-%m-%d'+timeDelimiter+'%H:%M:%S'
-    try:
-        theDate = datetime.strptime(dateString, formatString) ## convert string to datetime
-    except Exception as e:
-        printException("Bad Date String","error",e)
-        theDate = None
+def cleanRecordID(id):
+    """ return the integer version of id or else -1 """
+    if id is None:
+        return -1
+    if type(id) is str: # or type(id) is unicode:
+        if id.isdigit():
+            # a negative number like "-1" will fail this test, which is what we want
+            return int(id)
+        else:
+            return -1
+            
+    #already a number 
+    return id
+    
+def looksLikeEmailAddress(email=""):
+    """Return True if str email looks like a normal email address else False"""
+    if type(email) is not str:
+        return False
         
-    if theDate == None:
-        return None
-        
-    return theDate.replace(microsecond=0)
-
-
-def getLocalTimeAtEvent(tz,isDST=0):
-    """
-        Return the current local time at an event location
-    """
-    localTime = datetime.utcnow() + timedelta(hours=(getTimeZoneOffset(tz))) ## get local time at the event location
-    if(isDST == 1):
-        localTime = localTime + timedelta(hours=1)
-    
-    return localTime.replace(microsecond=0)
-    
-def getTimeZones():
-    # return a dictionary of time zone names and offsets
-    tz = {"EST":{"longName" : 'New York US', "offset": -5}, 
-          "CST":{"longName" : 'Chicago US', "offset": -6},
-          "MST":{"longName" : 'Denver US', "offset": -7},
-          "PST":{"longName" : 'Los Angeles US', "offset": -8},
-         }
-    return tz
-    
-def getTimeZoneOffset(zone=""):
-    tz = getTimeZones()
-    try:
-        return tz[zone.upper()]["offset"]
-    except KeyError:
-        return 0
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email.strip())
     
 def printException(mes="An Unknown Error Occured",level="error",err=None):
     from app import app
@@ -92,21 +61,63 @@ def printException(mes="An Unknown Error Occured",level="error",err=None):
         return mes
     else:
         return mes
-
-def cleanRecordID(id):
-    """ return the integer version of id or else -1 """
-    if id is None:
-        return -1
-    if type(id) is str: # or type(id) is unicode:
-        if id.isdigit():
-            # a minus number like "-1" will fail this test, which is what we want
-            return int(id)
-        else:
-            return -1
-            
-    #already a number 
-    return id
     
-def looksLikeEmailAddress(email):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email.strip())
     
+##############################################################################################
+## These are functions left over from bikeandwalk. Don't think I need them, but you never know
+##############################################################################################
+#
+#def nowString():
+#    """Return the timestamp string in the normal format"""
+#    return datetime.now().isoformat()[:19]
+#    
+#def getDatetimeFromString(dateString):
+#    if type(dateString) is str: # or type(dateString) is unicode:
+#        pass
+#    else:
+#        return None
+#        
+#    dateString = dateString[:19]
+#    timeDelimiter = " "
+#    if "T" in dateString:
+#        timeDelimiter = "T"
+#
+#    formatString = '%Y-%m-%d'+timeDelimiter+'%H:%M:%S'
+#    try:
+#        theDate = datetime.strptime(dateString, formatString) ## convert string to datetime
+#    except Exception as e:
+#        printException("Bad Date String","error",e)
+#        theDate = None
+#        
+#    if theDate == None:
+#        return None
+#        
+#    return theDate.replace(microsecond=0)
+#
+#
+#def getLocalTimeAtEvent(tz,isDST=0):
+#    """
+#        Return the current local time at an event location
+#    """
+#    localTime = datetime.utcnow() + timedelta(hours=(getTimeZoneOffset(tz))) ## get local time at the event location
+#    if(isDST == 1):
+#        localTime = localTime + timedelta(hours=1)
+#    
+#    return localTime.replace(microsecond=0)
+#    
+#def getTimeZones():
+#    # return a dictionary of time zone names and offsets
+#    tz = {"EST":{"longName" : 'New York US', "offset": -5}, 
+#          "CST":{"longName" : 'Chicago US', "offset": -6},
+#          "MST":{"longName" : 'Denver US', "offset": -7},
+#          "PST":{"longName" : 'Los Angeles US', "offset": -8},
+#         }
+#    return tz
+#    
+#def getTimeZoneOffset(zone=""):
+#    tz = getTimeZones()
+#    try:
+#        return tz[zone.upper()]["offset"]
+#    except KeyError:
+#        return 0
+#    
