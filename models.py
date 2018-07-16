@@ -276,7 +276,10 @@ class User(_Table):
             A keyword argument for include_inactive controls filtering
             of active users only
         """
-        
+        #if the 'id' is a string, try to find the user by username or email
+        if type(id) is str:
+            return self.get_by_username_or_email(id,**kwargs)
+            
         include_inactive = kwargs.get('include_inactive',False)
         where = 'id = {} {}'.format(cleanRecordID(id),self._active_only_clause(include_inactive))
 

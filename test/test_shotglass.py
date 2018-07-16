@@ -55,11 +55,12 @@ def test_user():
     recs = User(db).select(order_by = 'first_name')
     assert len(recs) == 3
     
-    rec = User(db).get_by_username_or_email('marcia@user_test.com')
+    #get by username or password
+    rec = User(db).get('marcia@user_test.com')
     assert rec.first_name == 'Marcia'
     
     # treat email address as case insensitive
-    rec = User(db).get_by_username_or_email('Marcia@User_Test.com')
+    rec = User(db).get('Marcia@User_Test.com')
     assert rec.first_name == 'Marcia'
     
     #test that inactive records are returned...
