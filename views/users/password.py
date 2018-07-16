@@ -27,6 +27,10 @@ def getPasswordSalt():
     
     
 def matchPasswordToHash(pw,passHash):
+    """A helper method to simplify testing a plain text password to a hash.
+    Returns either True or False
+    """
+    
     if pw == None or passHash == None:
         return False
         

@@ -29,20 +29,42 @@ def client():
     
 filespec = 'instance/test.db'
 
-#with app.app.app_context():
-#    db = app.get_db(filespec)
-#    app.init_db(db)
+with app.app.app_context():
+    db = app.get_db(filespec)
+    app.init_db(db)
 
         
 def delete_test_db():
         os.remove(filespec)
-        
-def test_database():
-    from models import Database
-    db2 = Database(filespec)
-    assert type(db2) is Database
-    del db2
 
+    
+def test_roles():
+    from models import Role
+    #db = get_test_db()
+    
+    recs = Role(db).select()
+    assert recs != None
+    assert len(recs)==3
+    assert recs[0].name != None
+    
+    rec = Role(db).new()
+    rec.name = "Testing"
+    rec.description = "A test role"
+    
+    recID = Role(db).save(rec)
+    assert rec.id == recID
+    assert rec.name == 'Testing'
+    assert rec.rank == 0
+    
+    #Modify the record
+    rec.name = "New Test"
+    rec.rank = 300
+    Role(db).save(rec)
+    assert rec.name == "New Test"
+    assert rec.rank == 300
+    
+    db.rollback()
+    
     
 ############################ The final 'test' ########################
 ######################################################################
