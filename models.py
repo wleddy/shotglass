@@ -7,15 +7,7 @@ from views.users.password import getPasswordHash
 
 class Database:
     """Handle the basic database functions"""
-    def __init__(self,filename=None):
-        from app import app
-        if filename == None:
-            with app.app_context():
-                if 'db' in g:
-                    filename = g.db
-                else:
-                    filename = 'app.db'
-        
+    def __init__(self,filename):        
         self.filename = filename
         self.connection = None
     
