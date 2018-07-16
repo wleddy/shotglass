@@ -2,13 +2,51 @@ from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint
 from time import time
 import re
-from models import User
+from models import User, Role
 from views.utils import printException, cleanRecordID, looksLikeEmailAddress
-from views.users.login import matchPasswordToHash, setUserStatus, getUserPasswordHash
+from views.users.login import matchPasswordToHash, setUserStatus
 
 mod = Blueprint('user',__name__)
 
-db = g.db
+def test():
+    out = "No users found"
+    user = User(g.db)
+    rec = user.get_by_username_or_email("admin")
+    if rec:
+        out = "<h1>Hello {} {}</h1>".format(rec.first_name,rec.last_name)
+        roles = user.get_roles(rec.id,order_by='name')
+        if roles:
+            out += "<p>Your roles include:</p>"
+            out += '<table><tr>'
+            cols = Role(g.db).get_column_names()
+            del cols[0]
+            for col in cols:
+                out += '<th style="border:1pt black solid;">{}</th>'.format(col.title())
+            for role in roles:
+                out += "<tr>"
+                for col in range(1,len(cols)+1):
+                    out += '<td style="border:1pt #666 solid;">{}</td>'.format(role[col])
+                out += "</tr>"
+            out += "</table>"
+        else:
+            out += "<p>You have no roles assigned.</p>"
+            
+        recs = Role(g.db).select(order_by='description')
+        if recs:
+            for rec in recs:
+                out +='<p>{} {}</p>'.format(rec.name,rec.description)
+        else:
+            out += "<p>No Role records found</p>"
+            
+        recs = User(g.db).select()
+        if recs:
+            out += '<h3>Users</h3>'
+            for rec in recs:
+                out += '<p>{} {}</p>'.format(rec.first_name,rec.last_name)
+        else:
+            out += "No Users Found"
+    return out
+    
 
 def setExits():
     g.listURL = url_for('.home')
@@ -138,10 +176,11 @@ def register():
     setExits()
     return "Registration not done yet..."
 
-#@mod.route('/user/delete', methods=['GET'])
-#@mod.route('/user/delete/', methods=['GET'])
-#@mod.route('/user/delete/<id>/', methods=['GET'])
-#def delete(id=0):
+@mod.route('/user/delete', methods=['GET'])
+@mod.route('/user/delete/', methods=['GET'])
+@mod.route('/user/delete/<id>/', methods=['GET'])
+def delete(int:id=0):
+    return "Delete not implemented yet"
 #    setExits()
 #    id = cleanRecordID(id)
 #    if id < 0:

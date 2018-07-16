@@ -41,7 +41,7 @@ def _teardown(exception):
 
 from views.users import user
 @app.route('/')
-def index():
+def home():
     return user.test()
 
 from views.users import user, login

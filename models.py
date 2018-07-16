@@ -1,6 +1,5 @@
 import sqlite3
 from namedlist import namedlist #Like namedtuples but mutable
-from views.users.login import getPasswordHash
 from views.utils import cleanRecordID
 from flask import g
 
@@ -45,7 +44,8 @@ class _Table:
             
         self.db = db_connection
         self.order_by_col = 'id' #default orderby column(s)
-    
+        self.defaults = {}
+        
     def create_table(self,definition=""):
         """The default table definition script. definition arg is a string of valid SQL"""
         
@@ -75,27 +75,105 @@ class _Table:
     @property
     def data_tuple(self):
         """return a namedtuple for use with this table"""        
-        return namedlist('DataRow',"{}".format(",".join(self.get_column_names())))
+        return namedlist('DataRow',"{}".format(",".join(self.get_column_names())),default=None)
         
     def rows_to_namedlist(self,row_list):
         """return a list of namedlists based on the list of Row objects provided"""
         out = None
         if row_list:
-            #namedlist('DataRow',col_list,default=None)()
             out = [self.data_tuple(*rec) for rec in row_list]
         return out
         
     def new(self):
         """return an 'empty' namedlist for the table"""
-        out = None
-        nones = ()
-        for x in self.get_column_names():
-            nones += (None,)
-            
-        out = self.data_tuple(*nones)
-        #out = nt(*nones)
+        return self.data_tuple()
         
-        return out
+    def save(self,row_data,**kwargs):
+        """Save the data in row_data to the db.
+        row_data is a named list
+        
+        If row_data.id == None, insert, else update an existing record
+        
+        trim_strings=False in kwargs will write to db as received. else strip strings first
+        
+        The data is re read from the db after save and row_data is updated in place so the calling methods has 
+        an update version of the data.
+        
+        return the id value of the effected row
+        
+        """
+        
+        def get_params(row_data):
+            params = ()
+            for x in range(1,len(row_data)):
+                params += (row_data[x],)
+            return params
+            
+        strip_strings = kwargs.get('strip_strings',True) # Strip by default
+        if strip_strings == True:
+            for x in range(1,len(row_data)):
+                if type(row_data[x]) is str:
+                    row_data[x] = row_data[x].strip()
+                    
+        insert_new = False
+        #generate the data param tuple
+        
+        if (row_data.id == None):
+            insert_new = True
+            self.set_defaults(row_data)
+            params = get_params(row_data)
+            
+            #print(row_data)
+            sql = 'insert into {} ({}) values ({})'.format(
+                self.table_name,
+                ",".join([row_data._fields[x] for x in range(1,len(row_data))]),
+                ','.join(["?" for x in range(1,len(row_data))])
+            )
+        else:
+            params = get_params(row_data)
+            
+            sql = 'update {} set {} where id = ?'.format(
+                self.table_name,
+                ",".join(["{} = ?".format(row_data._fields[x]) for x in range(1,len(row_data))])
+            )
+            params +=(row_data.id,)
+            
+        #print("save.sql: {}".format(sql))
+        #print("save.params: {}".format(params))
+        
+        # need to use a raw cursor so we can retrieve the last row inserted
+        cursor = self.db.cursor()
+        cursor.execute(sql,(params))
+                
+        if insert_new:
+            row_id = cursor.lastrowid
+        else:
+            row_id = row_data.id
+            
+        # Don't use the self.get() method here because there may be constraints as in User
+        temp_row = cursor.execute('select * from {} where id = {}'.format(self.table_name,row_id)).fetchone()
+        
+        if temp_row == None:
+            raise TypeError
+            #pass # Should really do something with this bit of infomation
+        else:
+            for x in range(1,len(row_data)):
+                row_data[x] = temp_row[x]
+            
+        row_data.id = row_id
+        
+        #print('save.row_data: {}'.format(row_data))
+            
+        return row_id
+        
+    def set_defaults(self,row_data):
+        """When creating a new record, set the defaults for this table"""
+        if row_data.id == None and len(self.defaults) > 0:
+            row_dict = row_data._asdict()
+            for key, value in self.defaults.items():
+                if row_dict[key] == None:
+                    row_data._update({key:value})
+        
         
     def select(self,**kwargs):
         """
@@ -115,11 +193,11 @@ class _Table:
             )
     
     def select_one(self,**kwargs):
-        """a version of select method that returns a single named tuple or None"""
+        """a version of select method that returns a single named list object or None"""
         return self._single_row(self.select(**kwargs))
         
     def select_raw(self,sql,params=''):
-        """Returns a list of named tuples based on the sql text with optional string substitutions"""
+        """Returns a list of named list objects based on the sql text with optional string substitutions"""
         return self.rows_to_namedlist(self.db.execute(sql,params).fetchall())
         
     def select_one_raw(self,sql,params=''):
@@ -144,6 +222,7 @@ class Role(_Table):
         super().__init__(db_connection)
         self.table_name = 'role'
         self.order_by_col = 'name'
+        self.defaults = {'rank':0,}
         
     def create_table(self):
         sql = """
@@ -188,7 +267,9 @@ class User(_Table):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'user'
-            
+        self.order_by = 'id'
+        self.defaults = {'active':1,}
+        
     def _active_only_clause(self,include_inactive=False,**kwargs):
         """Return a clause for the select statement to include active only or empty string"""
         include_inactive = kwargs.get('include_inactive',include_inactive)
@@ -213,12 +294,13 @@ class User(_Table):
         
         include_inactive = kwargs.get('include_inactive',False)
         
-        sql = "select * from {} where (username = ? or email = ?) {} order by id".format(self.table_name,self._active_only_clause(include_inactive))
+        sql = "select * from {} where (username = ? or lower(email) = lower(?)) {} order by id".format(self.table_name,self._active_only_clause(include_inactive))
         
         return self._single_row(self.select_raw(sql,(nameoremail,nameoremail)))
     
     def get_roles(self,userID,**kwargs):
         """Return a list of the role namedlist objects for the user's roles"""
+        from views.users.login import getPasswordHash
         
         order_by = kwargs.get('order_by','rank desc, name')
         sql = """select * from role where id in
@@ -240,7 +322,7 @@ class User(_Table):
         sql = """
             'first_name' TEXT,
             'last_name' TEXT,
-            'email' TEXT UNIQUE,
+            'email' TEXT UNIQUE COLLATE NOCASE,
             'phone' TEXT,
             'address' TEXT,
             'address2' TEXT,

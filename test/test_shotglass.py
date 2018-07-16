@@ -8,9 +8,6 @@ import pytest
 import tempfile
 
 import app
-from flask import g
-
-filespec = 'instance/test.db'
 
 
 @pytest.fixture
@@ -30,26 +27,16 @@ def client():
     os.unlink(app.app.config['DATABASE'])
     
     
+filespec = 'instance/test.db'
+
 with app.app.app_context():
     db = app.get_db(filespec)
     app.init_db(db)
-    #get a file descriptor to the db file so we can delete it later...
-    #file_des = os.open(filespec,1)
-    #os.close(file_des)
 
         
 def delete_test_db():
-        #os.close(file_des)
         os.remove(filespec)
 
-
-def test_first_user(client):
-    """there is always at least one user"""
-
-    rv = client.get('/')
-    assert b'Your roles include:' in rv.data
-    assert b'No users found' not in rv.data
-    
     
 def test_user():
     from models import User
@@ -69,6 +56,10 @@ def test_user():
     assert len(recs) == 3
     
     rec = User(db).get_by_username_or_email('marcia@user_test.com')
+    assert rec.first_name == 'Marcia'
+    
+    # treat email address as case insensitive
+    rec = User(db).get_by_username_or_email('Marcia@User_Test.com')
     assert rec.first_name == 'Marcia'
     
     #test that inactive records are returned...
@@ -100,7 +91,38 @@ def test_user():
     rec = User(db).new()
     assert rec.first_name == None
     
-def test_get_roles():
+    # put some values in the new record and save it to the db
+    rec = User(db).new()
+    rec.first_name = " Some " #tests for strip strings
+    rec.last_name = "Guy"
+    rec.email = "sYg@Test.com"
+    
+    new_id = User(db).save(rec)
+    
+    assert rec.id != None
+    assert rec.first_name == 'Some'
+    assert rec.email == 'sYg@Test.com'
+    assert rec.active == 1
+    
+    # Don't strip strings
+    rec.first_name = " Some "
+    User(db).save(rec,strip_strings=False)
+    assert rec.first_name == " Some "
+    
+    #update the record
+    rec = User(db).get(rec.id)
+    rec.last_name = 'Yung Guy'
+    User(db).save(rec)
+    
+    assert rec.last_name == 'Yung Guy'
+    
+    #Test Rollback
+    db.rollback()
+    rec = User(db).get(new_id)
+    assert rec == None
+
+    
+def test_roles():
     from models import Role
     #db = get_test_db()
     
@@ -109,8 +131,28 @@ def test_get_roles():
     assert len(recs)==3
     assert recs[0].name != None
     
+    rec = Role(db).new()
+    rec.name = "Testing"
+    rec.description = "A test role"
     
+    recID = Role(db).save(rec)
+    assert rec.id == recID
+    assert rec.name == 'Testing'
+    assert rec.rank == 0
+    
+    #Modify the record
+    rec.name = "New Test"
+    rec.rank = 300
+    Role(db).save(rec)
+    assert rec.name == "New Test"
+    assert rec.rank == 300
+    
+    
+############################ The final 'test' ########################
+######################################################################
 def test_finished():
-    delete_test_db()
-    
-    assert True
+    try:
+        delete_test_db()
+        assert True
+    except:
+        assert True
