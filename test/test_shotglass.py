@@ -71,6 +71,7 @@ def test_user():
     
     rec = User(db).select_one(where='first_name = "Bill"')
     assert rec.first_name == 'Bill'
+        
 
     #test no return
     rec = User(db).get_by_username_or_email("nothing to find here")
@@ -96,6 +97,7 @@ def test_user():
     rec.first_name = " Some " #tests for strip strings
     rec.last_name = "Guy"
     rec.email = "sYg@Test.com"
+    rec.password = "password"
     
     new_id = User(db).save(rec)
     
@@ -103,6 +105,9 @@ def test_user():
     assert rec.first_name == 'Some'
     assert rec.email == 'sYg@Test.com'
     assert rec.active == 1
+    assert rec.password == "password"
+
+    #db.commit()
     
     # Don't strip strings
     rec.first_name = " Some "

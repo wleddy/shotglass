@@ -2,6 +2,7 @@ import sqlite3
 from namedlist import namedlist #Like namedtuples but mutable
 from views.utils import cleanRecordID
 from flask import g
+from views.users.password import getPasswordHash
 
 
 class Database:
@@ -300,7 +301,6 @@ class User(_Table):
     
     def get_roles(self,userID,**kwargs):
         """Return a list of the role namedlist objects for the user's roles"""
-        from views.users.login import getPasswordHash
         
         order_by = kwargs.get('order_by','rank desc, name')
         sql = """select * from role where id in
@@ -308,7 +308,7 @@ class User(_Table):
                 """.format(order_by)
                 
         return  Role(self.db).rows_to_namedlist(self.db.execute(sql,(cleanRecordID(userID),)).fetchall())
-        
+                
     def select(self,**kwargs):
         """Limit selection to active user only unless 'include_inactive' is true in kwargs"""
         where = '{} {}'.format(kwargs.get('where','1'),self._active_only_clause(kwargs.get('include_inactive',False)))
@@ -317,7 +317,6 @@ class User(_Table):
         
         return super().select(where=where,order_by=order_by)
                 
-        
     def create_table(self):
         sql = """
             'first_name' TEXT,
@@ -338,6 +337,7 @@ class User(_Table):
         
     def init_table(self):
         """Create the table in the db and optionally add some initial data"""
+
         self.create_table()
         
         #Try to get a value from the table and create a record if none
