@@ -29,6 +29,8 @@ def client():
     
 filespec = 'instance/test.db'
 
+db = None
+
 #with app.app.app_context():
 #    db = app.get_db(filespec)
 #    app.init_db(db)

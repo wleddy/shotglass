@@ -255,27 +255,4 @@ def validForm():
         
     return goodForm
     
-def findUser(emailOrUserName=None,includeInactive=False):
-    if emailOrUserName == None:
-        return None
-        
-    emailOrUserName = emailOrUserName.strip().lower()
-    ## locate the user with this as their email or username
-    #sql = "SELECT user.*, user_organization.organization_ID FROM user join user_organization WHERE lower(user.email) = '%s' OR lower(user.username) = '%s'"
-    sql = "SELECT * FROM user WHERE  lower(user.email) = '%s' OR lower(user.username) = '%s'"
-    sql = sql % (emailOrUserName, emailOrUserName)
-    
-    #Filter inactive if needed
-    if not includeInactive:
-        #Active user only
-        sql = sql + " AND user.inactive = '0'"
-    
-    sql = sql + " LIMIT 1 ;"
-    
-    rec = db.engine.execute(sql).fetchone()
-    if rec:
-        return rec
-        
-    return None
-    
 

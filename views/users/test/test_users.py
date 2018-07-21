@@ -26,7 +26,9 @@ def client():
     os.unlink(app.app.config['DATABASE'])
     
     
-filespec = 'instance/test.db'
+filespec = 'instance/test_users.db'
+
+db = None
 
 with app.app.app_context():
     db = app.get_db(filespec)
@@ -77,7 +79,6 @@ def test_password_hash():
 def test_finished():
     try:
         db.close()
-        del db
         delete_test_db()
         assert True
     except:

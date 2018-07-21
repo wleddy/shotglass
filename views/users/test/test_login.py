@@ -26,20 +26,19 @@ def client():
     os.unlink(app.app.config['DATABASE'])
     
     
-filespec = 'instance/test.db'
+filespec = 'instance/test_login.db'
 
+db = None
 
-def make_test_db():
-    with app.app.app_context():
-        db = app.get_db(filespec)
-        app.init_db(db)
+with app.app.app_context():
+    db = app.get_db(filespec)
+    app.init_db(db)
 
         
 def delete_test_db():
         os.remove(filespec)
 
 def test_login(client):
-    
     result = client.get('/login/')   
     assert result.status_code == 200
     assert b'User Name or Email Address' in result.data 
@@ -54,7 +53,6 @@ def test_login(client):
 def test_finished():
     try:
         db.close()
-        del db
         delete_test_db()
         assert True
     except:

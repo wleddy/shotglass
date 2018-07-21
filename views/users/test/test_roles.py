@@ -27,7 +27,8 @@ def client():
     os.unlink(app.app.config['DATABASE'])
     
     
-filespec = 'instance/test.db'
+filespec = 'instance/test_roles.db'
+db = None
 
 with app.app.app_context():
     db = app.get_db(filespec)
@@ -42,6 +43,8 @@ def test_roles():
     from models import Role
     #db = get_test_db()
     
+    assert Role(db).get(0) == None 
+    
     recs = Role(db).select()
     assert recs != None
     assert len(recs)==3
@@ -52,6 +55,7 @@ def test_roles():
     rec.description = "A test role"
     
     recID = Role(db).save(rec)
+    rec = Role(db).get(recID)
     assert rec.id == recID
     assert rec.name == 'Testing'
     assert rec.rank == 0
@@ -60,6 +64,7 @@ def test_roles():
     rec.name = "New Test"
     rec.rank = 300
     Role(db).save(rec)
+    rec = Role(db).get(rec.id)
     assert rec.name == "New Test"
     assert rec.rank == 300
     
@@ -71,7 +76,6 @@ def test_roles():
 def test_finished():
     try:
         db.close()
-        del db
         delete_test_db()
         assert True
     except:
