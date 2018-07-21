@@ -12,6 +12,7 @@ def test():
     out = "No users found"
     user = User(g.db)
     rec = user.get_by_username_or_email("admin")
+    print(session)
     if rec:
         out = "<h1>Hello {} {}</h1>".format(rec.first_name,rec.last_name)
         roles = user.get_roles(rec.id,order_by='name')
@@ -99,8 +100,8 @@ def edit(id=0):
             else:
                 ## create a new record stub
                 rec = User(request.form['name'],request.form['email'])
-                db.session.add(rec)
-                #db.session.commit() # this loads the new ID into rec
+                db.add(rec)
+                #db.commit() # this loads the new ID into rec
                 
                 rec.username = db.null()
                 rec.password = db.null()
@@ -143,28 +144,24 @@ def edit(id=0):
                     rec.password = db.null()
     
             try:
-                db.session.commit()
+                db.commit()
                 
                 # if the username or email address are the same as g.user
                 # update g.user if it changes
                 if(editingCurrentUser != ''):
-                    setUserStatus(editingCurrentUser)
-                    views.login.setUserSession(editingCurrentUser)
-                
-            
-           
+                    setUserStatus(editingCurrentUser,rec.id)                
                 
             except Exception as e:
-                db.session.rollback()
+                db.rollback()
                 flash(printException('Error attempting to save '+g.title+' record.',"error",e))
             
             return redirect(g.listURL)
         
         else:
-            # form did not validate, giv user the option to keep their old password if there was one
+            # form did not validate, give user the option to keep their old password if there was one
             currentPassword = ""
-            if request.form["password"] != "" and id > 0:
-                rec = User.query.get(id)
+            if request.form["password"].strip() != "" and id > 0:
+                rec = User(g.db).get(id)
                 currentPassword = rec.password
             rec=request.form
 
@@ -191,8 +188,8 @@ def delete(int:id=0):
 #        rec = User.query.get(id)
 #        if rec:
 #            try:
-#                db.session.delete(rec)
-#                db.session.commit()
+#                db.delete(rec)
+#                db.commit()
 #            except Exception as e:
 #                flash(printException('Error attempting to delete '+g.title+' record.',"error",e))
 #        else:

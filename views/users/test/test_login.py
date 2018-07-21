@@ -9,7 +9,6 @@ import tempfile
 
 import app
 
-
 @pytest.fixture
 def client():
     db_fd, app.app.config['DATABASE'] = tempfile.mkstemp()
@@ -17,9 +16,9 @@ def client():
     client = app.app.test_client()
 
     with app.app.app_context():
-        print(app.app.config['DATABASE'])
+        #print(app.app.config['DATABASE'])
         app.init_db(app.get_db(app.app.config['DATABASE'])) 
-        print(app.g.db)
+        #print(app.g.db)
         
     yield client
 
@@ -29,25 +28,25 @@ def client():
     
 filespec = 'instance/test.db'
 
-#with app.app.app_context():
-#    db = app.get_db(filespec)
-#    app.init_db(db)
+
+def make_test_db():
+    with app.app.app_context():
+        db = app.get_db(filespec)
+        app.init_db(db)
 
         
 def delete_test_db():
         os.remove(filespec)
-        
-def test_database():
-    from models import Database
-    db2 = Database(filespec)
-    assert type(db2) is Database
-    del db2
 
-def test_home(client):
-    result = client.get('/')   
+def test_login(client):
+    
+    result = client.get('/login/')   
     assert result.status_code == 200
-    assert b'Admin' in result.data 
-    assert b"No users found" not in result.data 
+    assert b'User Name or Email Address' in result.data 
+    
+    result = client.post('/login/', data={'userNameOrEmail': 'admin', 'password': 'password'},follow_redirects=True)
+    assert result.status == '200 OK'
+    assert b'Hello' in result.data
     
     
 ############################ The final 'test' ########################

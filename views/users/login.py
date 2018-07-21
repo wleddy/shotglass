@@ -8,16 +8,14 @@ from views.users.password import getPasswordHash, matchPasswordToHash
 mod = Blueprint('login',__name__)
 
 
-
 def setExits():
     g.title = 'Login'
-    db = g.get('db',None)
-
+    
 @mod.route('/login', methods=['POST', 'GET'])
 @mod.route('/login/', methods=['POST', 'GET'])
 def login():
     setExits()
-    g.user = g.get('user', None)
+    g.user = g.get('user',None)
     if g.user is not None:
         flash("Already Logged in...")
         return redirect(url_for("home"))
@@ -31,10 +29,23 @@ def login():
             #Testing that user agent is keeping cookies.
             #If not, there is no point in going on... Also, could be a bot.
             return render_template('login/no-cookies.html')
+        
+        #print("db={}".format(db))
+        rec = User(g.db).get(request.form["userNameOrEmail"],include_inactive=True)
+        #print(rec)
+        if rec and matchPasswordToHash(request.form["password"],rec.password):
+            session['loginTries'] = 0
+            if rec.active == 0:
+                flash("Your account is inactive")
+                return render_template('/login/inactive.html')
                 
-        if validateUser(request.form["password"],request.form["userNameOrEmail"]):
-            setUserSession(request.form["userNameOrEmail"].strip())
-            return redirect(url_for("home"))
+            # log user in...
+            setUserStatus(request.form["userNameOrEmail"],rec.id)
+            
+            next = request.form.get('next',None)
+            if next:
+                return redirect(next)
+            return redirect(url_for('home')) #logged in...
         else:
             flash("Invalid User Name or Password")
         
@@ -49,19 +60,6 @@ def login():
         
     return render_template('login/user_login.html', form=request.form)
        
-def validateUser(password,userNameOrEmail):
-    """"""
-    if password and userNameOrEmail: 
-        password = password.strip()
-        userNameOrEmail = userNameOrEmail.strip()
-        #Check for a password match
-        passHash = getUserPasswordHash(userNameOrEmail)
-        if passHash != '':
-            if matchPasswordToHash(password,passHash):
-                return setUserStatus(userNameOrEmail)
-            
-    return False
-    
     
 @mod.route('/logout', methods=['GET'])
 @mod.route('/logout/', methods=['GET'])
@@ -72,34 +70,9 @@ def logout():
     return redirect(url_for("home"))
     
     
-def setUserSession(userNameOrEmail):
-    session["user"] = userNameOrEmail
-        
-#def getUserPasswordHash(emailOrUserName=''):
-#    includeInactive = True
-#    rec = findUser(emailOrUserName.strip(),includeInactive)
-#    if rec:
-#        return rec.password
-#        
-#    return ""
-
-def setUserStatus(emailOrUserName):
-    if emailOrUserName == None:
-        return False
-    emailOrUserName = emailOrUserName.strip()
-    rec = findUser(emailOrUserName)
-    if rec:
-        g.user = emailOrUserName
-        g.role = rec.role
-        g.orgID = rec.organization_ID
-        
-        if g.role == "super" and ('superOrgID' in session) :
-            ## super user is managing another organization's data
-            if 'superOrgID' in session:
-                g.orgID = int(session.get('superOrgID'))
-        
-        return True
-    else:
-        flash("User is not on file")
-        return False
-           
+def setUserStatus(userNameOrEmail,user_id):
+    session["user"] = userNameOrEmail.strip()
+    g.user = userNameOrEmail
+    g.user_roles = User(g.db).get_roles(user_id)
+    
+    
