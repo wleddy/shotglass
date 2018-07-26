@@ -2,6 +2,10 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
+{% if user in session %}
+<h1>Hello {{session["user"]}}</h1>
+{% else %}
 <h1>Hello World!</h1>
-<p><a href="{{ url_for('admin.index') }}">Go to admin!</a></p>
+{% endif %}
+<p><a href="{{ url_for('user.home') }}">Go to admin!</a></p>
 {% endblock body %}
