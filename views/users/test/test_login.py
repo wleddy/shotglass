@@ -39,19 +39,22 @@ def delete_test_db():
         os.remove(filespec)
 
 def test_login(client):
-    result = client.get('/login/')   
-    assert result.status_code == 200
-    assert b'User Name or Email Address' in result.data 
-    
-    result = client.post('/login/', data={'userNameOrEmail': 'admin', 'password': 'password'},follow_redirects=True)
-    assert result.status == '200 OK'
-    assert b'Hello' in result.data
+    with client as c:
+        from flask import session, g
+        result = c.get('/login/')   
+        assert result.status_code == 200
+        assert b'User Name or Email Address' in result.data 
+
+        result = c.post('/login/', data={'userNameOrEmail': 'admin', 'password': 'password'},follow_redirects=True)
+        assert result.status == '200 OK'
+        assert b'Hello' in result.data
+        assert session['user'] == 'admin'
     
     
 ############################ The final 'test' ########################
 ######################################################################
 def test_finished():
-    try:
+    try:    
         db.close()
         delete_test_db()
         assert True

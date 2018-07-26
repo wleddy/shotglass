@@ -5,7 +5,7 @@ from time import sleep
 from models import User
 from views.users.password import getPasswordHash, matchPasswordToHash
 
-mod = Blueprint('login',__name__)
+mod = Blueprint('login',__name__, template_folder='templates')
 
 
 def setExits():
@@ -42,7 +42,7 @@ def login():
             # log user in...
             setUserStatus(request.form["userNameOrEmail"],rec.id)
             
-            next = request.form.get('next',None)
+            next = request.form.get('next','')
             if next:
                 return redirect(next)
             return redirect(url_for('home')) #logged in...

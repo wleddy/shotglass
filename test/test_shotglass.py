@@ -48,7 +48,7 @@ def test_database():
 def test_home(client):
     result = client.get('/')   
     assert result.status_code == 200
-    assert b'Admin' in result.data 
+    assert b'Hello World' in result.data 
     assert b"No users found" not in result.data 
     
     
