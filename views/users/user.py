@@ -6,7 +6,7 @@ from models import User, Role
 from views.utils import printException, cleanRecordID, looksLikeEmailAddress
 from views.users.login import matchPasswordToHash, setUserStatus
 
-mod = Blueprint('user',__name__)
+mod = Blueprint('user',__name__, template_folder='templates')
 
 def test():
     out = "No users found"
@@ -82,7 +82,7 @@ def edit(id=0):
         # get the user record if you can
         currentPassword = ""
         if id > 0:
-            rec = User.query.get(id)
+            rec = User(g.db).get(id)
             currentPassword = rec.password
                 
         
@@ -96,7 +96,7 @@ def edit(id=0):
 
         if validForm():
             if id > 0:
-                rec = User.query.get(id)
+                rec = User(g.db).get(id)
             else:
                 ## create a new record stub
                 rec = User(request.form['name'],request.form['email'])
@@ -185,7 +185,7 @@ def delete(int:id=0):
 #        return redirect(g.listURL)
 #    
 #    if id > 0:
-#        rec = User.query.get(id)
+#        rec = User(g.db).get(id)
 #        if rec:
 #            try:
 #                db.delete(rec)

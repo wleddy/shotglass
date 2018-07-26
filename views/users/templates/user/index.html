@@ -3,7 +3,11 @@
 {% block body %}
 <h3>{{ config.SITE_NAME }} User Menu</h3>
 <ul class="list-menu">
-    <li><a href="{{ url_for('login.login')}}" >Login</li>
+    {% if "user" in session %}
+    <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
     <li><a href="{{ url_for('user.edit')}}" >Manage User Record</li>
+    {% else %}
+    <li><a href="{{ url_for('login.login')}}" >Login</li>
+    {% endif %}
 </ul>
 {% endblock body %}
