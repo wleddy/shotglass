@@ -7,7 +7,8 @@
       <dl>
 		{% include "editFormButtons.html" %}
 		<dt>Name:
-        <dd><input type=text size=30 name="name" value="{{rec.name}}"/>
+        <dd><input type=text size=30 name="first_name" value="{{rec.first_name}}"/>
+            <input type=text size=30 name="last_name" value="{{rec.last_name}}"/>
         <dt>Email:
         <dd><input type=text size=30 name="email" value="{{rec.email|default("",true)}}"/>
         <dt>User Name:

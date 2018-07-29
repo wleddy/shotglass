@@ -70,6 +70,18 @@ class _Table:
         """return a namedtuple for use with this table"""        
         return namedlist('DataRow',"{}".format(",".join(self.get_column_names())),default=None)
         
+    def delete(self,id):
+        """Delete a single row with this id.
+        Return True or False"""
+        
+        #import pdb;pdb.set_trace()
+        row = self.get(id,include_inactive = True)
+        if row:
+            self.db.execute('delete from {} where id = ?'.format(self.table_name),(id,))
+            return True
+               
+        return False
+        
     def rows_to_namedlist(self,row_list):
         """return a list of namedlists based on the list of Row objects provided"""
         out = None
@@ -116,7 +128,6 @@ class _Table:
             self.set_defaults(row_data)
             params = get_params(row_data)
             
-            #print(row_data)
             sql = 'insert into {} ({}) values ({})'.format(
                 self.table_name,
                 ",".join([row_data._fields[x] for x in range(1,len(row_data))]),
@@ -130,10 +141,7 @@ class _Table:
                 ",".join(["{} = ?".format(row_data._fields[x]) for x in range(1,len(row_data))])
             )
             params +=(row_data.id,)
-            
-        #print("save.sql: {}".format(sql))
-        #print("save.params: {}".format(params))
-        
+                    
         # need to use a raw cursor so we can retrieve the last row inserted
         cursor = self.db.cursor()
         cursor.execute(sql,(params))
@@ -154,9 +162,7 @@ class _Table:
                 row_data[x] = temp_row[x]
             
         row_data.id = row_id
-        
-        #print('save.row_data: {}'.format(row_data))
-            
+                    
         return row_id
         
     def set_defaults(self,row_data):
@@ -167,28 +173,37 @@ class _Table:
                 if row_dict[key] == None:
                     row_data._update({key:value})
         
-        
-    def select(self,**kwargs):
-        """
-            perform a basic SELECT query returning a list namedlists for all columns
-            optional kwargs are:
-                where: text to use in the where clause
-                order_by: text to include in the order by clause
+    def _select_sql(self,**kwargs):
+        """Return the sql text that will be used by select or select_one
+        optional kwargs are:
+            where: text to use in the where clause
+            order_by: text to include in the order by clause
         """
         where = kwargs.get('where','1')
         order_by = kwargs.get('order_by',self.order_by_col)
         sql = 'SELECT * FROM {} WHERE {} ORDER BY {}'.format(self.table_name,where,order_by,)
+        return sql
+        
+    def select(self,**kwargs):
+        """
+            perform a basic SELECT query returning a list namedlists for all columns
+        """
         
         return self.rows_to_namedlist(
             self.db.execute(
-                sql
+                self._select_sql(**kwargs)
                 ).fetchall()
             )
     
     def select_one(self,**kwargs):
         """a version of select method that returns a single named list object or None"""
-        return self._single_row(self.select(**kwargs))
-        
+        rows = self.rows_to_namedlist(
+            [self.db.execute(
+                self._select_sql(**kwargs)
+                ).fetchone()]
+            )
+        return self._single_row(rows)
+                
     def select_raw(self,sql,params=''):
         """Returns a list of named list objects based on the sql text with optional string substitutions"""
         return self.rows_to_namedlist(self.db.execute(sql,params).fetchall())
@@ -197,7 +212,7 @@ class _Table:
         """Return a single namedlist for sql select statement"""
         return self._single_row(self.select_raw(sql,params))
             
-    def get(self,id):
+    def get(self,id,**kwargs):
         """Return a list of a single namedlist for the ID or None"""
         return self._single_row(self.select(where='id = {}'.format(cleanRecordID(id),)))
         
@@ -218,6 +233,8 @@ class Role(_Table):
         self.defaults = {'rank':0,}
         
     def create_table(self):
+        """Define and create the role tablel"""
+        
         sql = """
             'name' TEXT UNIQUE NOT NULL,
             'description' TEXT,
@@ -247,9 +264,11 @@ class UserRole(_Table):
         self.table_name = 'user_role'
     
     def create_table(self):
+        """Define and create the user_role tablel"""
+        
         sql = """
-            'user_id' INTEGER,
-            'role_id' INTEGER,
+            'user_id' INTEGER NOT NULL,
+            'role_id' INTEGER NOT NULL,
             FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
             FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE """
         super().create_table(sql)
@@ -271,6 +290,16 @@ class User(_Table):
         
         return 'and active = 1'
         
+    def delete(self,rec_id):
+        """Delete a single user record as indicated
+        'id' may be an integer or a string"""
+        
+        rec = self.get(rec_id,include_inactive=True)
+        if rec:
+            return super().delete(rec.id)
+            
+        return False
+        
     def get(self,id,**kwargs):
         """Return a single namedlist for the user with this id
             A keyword argument for include_inactive controls filtering
@@ -287,12 +316,12 @@ class User(_Table):
 
     def get_by_username_or_email(self,nameoremail,**kwargs):
         """Return a single namedlist obj or none based on the username or email"""
-        
+
         include_inactive = kwargs.get('include_inactive',False)
-        
+
         sql = "select * from {} where (username = ? or lower(email) = lower(?)) {} order by id".format(self.table_name,self._active_only_clause(include_inactive))
         
-        return self._single_row(self.select_raw(sql,(nameoremail,nameoremail)))
+        return self._single_row(self.select_raw(sql,(nameoremail.strip(),nameoremail.strip())))
     
     def get_roles(self,userID,**kwargs):
         """Return a list of the role namedlist objects for the user's roles"""
@@ -313,6 +342,8 @@ class User(_Table):
         return super().select(where=where,order_by=order_by)
                 
     def create_table(self):
+        """Define and create the user tablel"""
+        
         sql = """
             'first_name' TEXT,
             'last_name' TEXT,
@@ -331,7 +362,7 @@ class User(_Table):
         super().create_table(sql)
         
     def init_table(self):
-        """Create the table in the db and optionally add some initial data"""
+        """add some initial data"""
 
         self.create_table()
         

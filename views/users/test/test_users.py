@@ -39,43 +39,111 @@ def delete_test_db():
         os.remove(filespec)
         
         
-def test_password_hash():
+def test_create_test_data():
+    # Populate the test database
+    f = open('views/users/test/test_data_create.sql','r')
+    sql = f.read()
+    f.close()
+    cur = db.cursor()
+    cur.executescript(sql)
+    
+    
+def test_user_get():
     import views.users.password as login
-    # basic tests
-    passwords = ("password", 
-                 "PassWord",
-                 "nota passwoerd",
-                 "password ",
-                )
-    results = ()
-    for x in range(len(passwords)):
-        results += (login.getPasswordHash(passwords[x]),)
-        
-    for x in range(len(passwords)):
-        print('Basic test {}; pw: {}, hash: {}'.format(x,passwords[x],results[x]))
-        assert results[x] != ''
-        print(len(results[x]))
-        assert len(results[x]) == 84
-        if x > 0:
-            assert results[x] != results[x-1]
+    from models import User
     
-    ### test the helper method to test a password
-    for x in range(len(passwords)):
-        print('Match test {}; pw: {}, hash: {}'.format(x,passwords[x],results[x]))
-        assert login.matchPasswordToHash(passwords[x],results[x])
-        
-    ### test the None inputs and returns
-    assert login.getPasswordHash('') == None
-    assert login.matchPasswordToHash('',4) == False
-    assert login.matchPasswordToHash('password','') == False
-    assert login.matchPasswordToHash('password',234234) == False
-    assert login.matchPasswordToHash('password',None) == False
-    assert login.matchPasswordToHash(None,None) == False
+    #do some tests...
+    user = User(db)
+    rec = user.get(1)
+    assert rec.username == 'admin'
+    rec = user.get('admin')
+    assert rec.username == 'admin'
+    recs = user.select()
+    assert len(recs) == 3
+    # select inactive users too...
+    recs = user.select(include_inactive=True)
+    assert len(recs) == 4
+    #ensure that inactive users are not returned with get
+    rec = user.get('none')
+    assert rec == None
+    #and now we can...
+    rec = user.get('none',include_inactive=True)
+    assert rec.username == 'none'
+    #ensure that username is case sensitive
+    rec = user.get('doris')
+    assert rec.username == 'doris'
+    rec = user.get('Doris')
+    assert rec == None
+    #get by email and NOT case sensitive
+    rec = user.get('John@example.com')
+    assert rec.last_name == "Goodman"
+    rec = user.get('john@example.com')
+    assert rec.last_name == "Goodman"
+    #and that spaces are stripped
+    rec = user.get(' john@example.com ')
+    assert rec.last_name == "Goodman"
     
+    
+def test_user_creation():
+    from models import User
+    #create some user records
+    user = User(db)
+    
+    rec = user.new()
+    assert rec != None
+    rec.first_name = 'Another'
+    rec.last_name = 'User'
+    rec.username = ' anotheruser ' # Spaces should be trimmed
+    rec.email = 'anotheruser@example.com'
+    new_id = user.save(rec)
+    assert new_id != None
+    assert new_id > 0
+    assert rec.active == 1 #test the default value
+    assert rec.username == 'anotheruser'
+    
+    db.rollback()
+    
+def test_user_update():
+    from models import User
+    
+    user = User(db)
+    rec = user.get('doris')
+    assert rec != None
+    
+    rec.email = 'AnewAddress@example.com'
+    user.save(rec)
+    rec = user.get('doris')
+    assert rec.email == 'AnewAddress@example.com'
+    
+    db.rollback()
+    
+    
+def test_user_delete():
+    from models import User, Role
+    
+    user = User(db)
+    record_deleted = user.delete(2)
+    assert record_deleted == True
+    record_deleted = user.delete('John')
+    assert record_deleted == True
+    record_deleted = user.delete('John')
+    assert record_deleted == False
+    record_deleted = user.delete('none') # test that we can delete an inactive record
+    assert record_deleted == True
+    record_deleted = Role(db).delete(1)
+    assert record_deleted == True
     db.rollback()
     
 ############################ The final 'test' ########################
 ######################################################################
+def test_delete_test_data():
+    # delete the records we created just to prove we can
+    f = open('views/users/test/test_data_delete.sql','r')
+    sql = f.read()
+    f.close()
+    cur = db.cursor()
+    cur.executescript(sql)
+
 def test_finished():
     try:
         db.close()

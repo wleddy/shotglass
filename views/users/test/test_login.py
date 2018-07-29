@@ -47,8 +47,10 @@ def test_login(client):
 
         result = c.post('/login/', data={'userNameOrEmail': 'admin', 'password': 'password'},follow_redirects=True)
         assert result.status == '200 OK'
-        assert b'Hello' in result.data
+        assert b'Invalid User Name or Password' not in result.data
         assert session['user'] == 'admin'
+        ## don't test the resulting page... it is part of the overlying app
+        #assert b'Hello' in result.data
     
     
 ############################ The final 'test' ########################

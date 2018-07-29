@@ -166,6 +166,7 @@ def edit(id=0):
             rec=request.form
 
     # display form
+    print(rec)
     return render_template('user/user_edit.html', rec=rec, currentPassword=currentPassword)
     
 @mod.route('/user/register/', methods=['GET'])
