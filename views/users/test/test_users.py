@@ -82,7 +82,9 @@ def test_user_get():
     #and that spaces are stripped
     rec = user.get(' john@example.com ')
     assert rec.last_name == "Goodman"
-    
+    #test a total miss
+    assert user.get('something that doesnt exist') == None
+    assert user.get(234343) == None
     
 def test_user_creation():
     from models import User

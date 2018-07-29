@@ -85,7 +85,7 @@ class _Table:
     def rows_to_namedlist(self,row_list):
         """return a list of namedlists based on the list of Row objects provided"""
         out = None
-        if row_list:
+        if row_list and len(row_list)>0 and row_list[0] != None:
             out = [self.data_tuple(*rec) for rec in row_list]
         return out
         
@@ -188,13 +188,11 @@ class _Table:
         """
             perform a basic SELECT query returning a list namedlists for all columns
         """
+        recs = self.db.execute(self._select_sql(**kwargs)).fetchall()
+        if recs:
+            return self.rows_to_namedlist(recs)
+        return None
         
-        return self.rows_to_namedlist(
-            self.db.execute(
-                self._select_sql(**kwargs)
-                ).fetchall()
-            )
-    
     def select_one(self,**kwargs):
         """a version of select method that returns a single named list object or None"""
         rows = self.rows_to_namedlist(
