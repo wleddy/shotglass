@@ -2,42 +2,43 @@
 {% block title %}Edit {{ g.title }}{% endblock %}
 {% block body %}
 	<h2>Edit {{ g.title }}</h2>	
-    <form action="{{ g.editURL }}{{rec.ID|default("0",true)}}/" method=post class="entry">
-		<input type=hidden name="ID" value="{{rec.ID|default("0",true)}}">
+    <form action="{{ g.editURL }}" method=post class="entry">
+		<input type=hidden name="id" value="{{rec.id|default('0',true)}}">
       <dl>
 		{% include "editFormButtons.html" %}
 		<dt>Name:
         <dd><input type=text size=30 name="first_name" value="{{rec.first_name}}"/>
             <input type=text size=30 name="last_name" value="{{rec.last_name}}"/>
         <dt>Email:
-        <dd><input type=text size=30 name="email" value="{{rec.email|default("",true)}}"/>
+        <dd><input type=text size=30 name="email" value="{{rec.email|default('',true)}}"/>
         <dt>User Name:
-        <dd><input type=text size=30 name="userName" value="{{rec.userName|default("",true)}}"/>
+        <dd><input type=text size=30 name="username" value="{{rec.username|default('',true)}}"/>
         <dt>Password {% if currentPassword %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
         <dd><input type=password size=30 name="password" value=""/>
         <dt>Re-type password:
         <dd><input type=password size=30 name="confirmPassword" value=""/>
+        <dt>Address:
+        <dd><input type=text size=30 name="address" value="{{rec.address|default('',true)}}"/>
+        <dd><input type=text size=30 name="address2" value="{{rec.address2|default('',true)}}"/>
+        <dd>
+            <input type=text size=20 name="city" value="{{rec.city|default('',true)}}"/>
+            <input type=text size=3 name="state" value="{{rec.state|default('',true)}}"/>
+            <input type=text size=11 name="zip" value="{{rec.zip|default('',true)}}"/>
+        <dt>Phone:
+        <dd><input type=text size=30 name="phone" value="{{rec.phone|default('',true)}}"/>
 
-		{% if g.role == 'super' or g.role == 'admin' %}
-        <dt>Organizations:</dt>
-		{% for org in orgs %}
-		<dd>
-			<label><input type="checkbox" id="org_{{org.ID}}" name="orgs" value="{{org.ID}}" {% if org.ID in selectedOrgs %}checked="checked"{% endif %} />&nbsp;{{org.name}}</label>
-		</dd>
-		{% endfor %}
+		{% if g.user_rank and g.user_rank > 1 %}
         <dt>Role:</dt>
 		<dd><select name="role">
-			<option value="counter" {% if rec.role == 'counter' %}selected="selected" {% endif %}>counter</option>
-			<option value="admin" {% if rec.role == 'admin' %}selected="selected" {% endif %}>admin</option>
-		{% if g.role == 'super' %}
-			<option value="super" {% if rec.role == 'super' %}selected="selected" {% endif %}>super</option>
-		{% endif %}
+            {% for role in roles %}
+            {% if g.user_rank >= role.rank %}
+			    <option value="{{role.id}}" {% if role.name in user_roles %}selected="selected" {% endif %}>role.name</option>
+            {% endif %}
+            {% endfor %}
 		</select></dd>
-		{% else %}
-		<input type=hidden name="role" value="{{rec.role|default("counter",true)}}">
-		{% endif %}
-		<input type=hidden name="org" value="{{g.orgID}}">
-        <dt>Inactive:<input type=checkbox  name="inactive" value="1" {% if rec.inactive %} checked="checked" {% endif %}/>
+        {% endif %}
+        <dt>Active:<input type=checkbox  name="active" value="1" {% if rec.active %} checked="checked" {% endif %}/>
+        <dt>Last Access: {{rec.last_access|default('Never',true)}}</dt>
       </dl>
     </form>
 {% endblock %}

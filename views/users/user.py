@@ -39,7 +39,7 @@ def test():
         else:
             out += "<p>No Role records found</p>"
             
-        recs = User(g.db).select()
+        recs = user.select()
         if recs:
             out += '<h3>Users</h3>'
             for rec in recs:
@@ -58,7 +58,7 @@ def setExits():
 @mod.route('/user/')
 def home():
     setExits()
-    return render_template('user/index.html')
+    return render_template('user/user_index.html')
 
 
 ## Edit the user
@@ -66,45 +66,50 @@ def home():
 @mod.route('/user/edit/', methods=['POST', 'GET'])
 @mod.route('/user/edit/<id>/', methods=['POST', 'GET'])
 def edit(id=0):
-    #printException(str(request.form)) 
-    
     setExits()
-    id = cleanRecordID(id)
-    
-    if id < 0:
-        flash("That is not a valid ID")
-        return redirect(g.listURL)
-            
+
+    user = User(g.db)
     rec = None
+    currentPassword = ""
+    user_handle = None
     
+    if id == 0 and g.user != None:
+        user_handle = g.user
+    elif id == 0:
+        #create a new record
+        pass
+    else:
+        id = cleanRecordID(id)
+        if id < 0:
+            flash("That is not a valid ID")
+            return redirect(g.listURL)
+        user_handle = id
+        
     if not request.form:
         """ if no form object, send the form page """
-        # get the user record if you can
-        currentPassword = ""
-        if id > 0:
-            rec = User(g.db).get(id)
-            currentPassword = rec.password
-                
+        rec = user.get(user_handle)
+        if not rec:
+            flash("Unable to locate user record")
+            return redirect(url_for('home'))
+            
+        currentPassword = rec.password
+            
         
     else:
         #have the request form
         #ensure a value for the check box
-        inactive = request.form.get('inactive')
-        if not inactive: 
-            inactive = "0"
+        #import pdb;pdb.set_trace()
+        active = request.form.get('active')
+        if not active: 
+            active = "0"
         
 
-        if validForm():
-            if id > 0:
-                rec = User(g.db).get(id)
+        if True or validForm():
+            if user_handle:
+                rec = user.get(user_handle)
             else:
                 ## create a new record stub
-                rec = User(request.form['name'],request.form['email'])
-                db.add(rec)
-                #db.commit() # this loads the new ID into rec
-                
-                rec.username = db.null()
-                rec.password = db.null()
+                rec = user.new()
         
             #Are we editing the current user's record?
             editingCurrentUser = ''
@@ -115,10 +120,17 @@ def edit(id=0):
                     editingCurrentUser = request.form['email'].strip()
             
             #update the record
-            rec.name = request.form['name'].strip()
             rec.email = request.form['email'].strip()
-            rec.role = request.form['role'].strip()
-            rec.inactive = str(inactive)
+            rec.first_name = request.form['first_name'].strip()
+            rec.last_name = request.form['last_name'].strip()
+            rec.address = request.form['address'].strip()
+            rec.address2 = request.form['address2'].strip()
+            rec.city = request.form['city'].strip()
+            rec.state = request.form['state'].strip()
+            rec.zip = request.form['zip'].strip()
+            rec.phone = request.form['phone'].strip()
+            #rec.role = request.form['role'].strip()
+            rec.active = str(active)
             
             user_name = ''
             if request.form['username']:
@@ -127,10 +139,9 @@ def edit(id=0):
             if user_name != '':
                 rec.username = user_name
             else:
-                rec.username = db.null()
+                rec.username = None
         
-            # Null values in db are returned as None
-            if str(rec.password) != 'NULL' and request.form['password'].strip() == '':
+            if rec.password != None and request.form['password'].strip() == '':
                 # Don't change the password
                 pass
             else:
@@ -141,10 +152,11 @@ def edit(id=0):
                 if user_password != '':
                     rec.password = user_password
                 else:
-                    rec.password = db.null()
+                    rec.password = None
     
             try:
-                db.commit()
+                user.save(rec)
+                g.db.commit()
                 
                 # if the username or email address are the same as g.user
                 # update g.user if it changes
@@ -152,7 +164,7 @@ def edit(id=0):
                     setUserStatus(editingCurrentUser,rec.id)                
                 
             except Exception as e:
-                db.rollback()
+                g.db.rollback()
                 flash(printException('Error attempting to save '+g.title+' record.',"error",e))
             
             return redirect(g.listURL)
@@ -161,12 +173,11 @@ def edit(id=0):
             # form did not validate, give user the option to keep their old password if there was one
             currentPassword = ""
             if request.form["password"].strip() != "" and id > 0:
-                rec = User(g.db).get(id)
+                rec = user.get(id)
                 currentPassword = rec.password
             rec=request.form
 
     # display form
-    print(rec)
     return render_template('user/user_edit.html', rec=rec, currentPassword=currentPassword)
     
 @mod.route('/user/register/', methods=['GET'])
@@ -186,7 +197,7 @@ def delete(int:id=0):
 #        return redirect(g.listURL)
 #    
 #    if id > 0:
-#        rec = User(g.db).get(id)
+#        rec = user.get(id)
 #        if rec:
 #            try:
 #                db.delete(rec)

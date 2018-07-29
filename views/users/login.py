@@ -69,6 +69,18 @@ def logout():
     flash("Successfully Logged Out")
     return redirect(url_for("home"))
     
+@mod.route('/reset', methods=['GET','POST'])
+def reset_password():
+    """Give user the chance to change recover a forgotten password
+    Will send an email to the matching user"""
+    
+    return "Not implemented yet"
+    
+@mod.route('/signup', methods=['GET','POST'])
+def register():
+    """Allow user to signup for an account"""
+    
+    return "Not implemented yet"
     
 def setUserStatus(userNameOrEmail,user_id):
     session["user"] = userNameOrEmail.strip()

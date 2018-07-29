@@ -62,15 +62,15 @@ def printException(mes="An Unknown Error Occured",level="error",err=None):
     else:
         return mes
     
-    
+def nowString():
+    """Return the timestamp string in the normal format"""
+    return datetime.now().isoformat()[:19]
+       
 ##############################################################################################
 ## These are functions left over from bikeandwalk. Don't think I need them, but you never know
 ##############################################################################################
 #
-#def nowString():
-#    """Return the timestamp string in the normal format"""
-#    return datetime.now().isoformat()[:19]
-#    
+
 #def getDatetimeFromString(dateString):
 #    if type(dateString) is str: # or type(dateString) is unicode:
 #        pass

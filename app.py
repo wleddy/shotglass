@@ -1,5 +1,5 @@
 from models import Database, init_db
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, session
 from flask_mail import Mail
 
 # Create app
@@ -31,6 +31,11 @@ def _before():
         return redirect(request.url.replace("http://", "https://"))
         
     get_db()
+    
+    # Is the user signed in?
+    g.user = None
+    if 'user' in session:
+        g.user = session['user']
 
 
 @app.teardown_request
