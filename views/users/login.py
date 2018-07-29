@@ -58,7 +58,7 @@ def login():
     if session['loginTries'] > 5:
         sleep(session['loginTries']/.8)
         
-    return render_template('login/user_login.html', form=request.form)
+    return render_template('login/login.html', form=request.form)
        
     
 @mod.route('/logout', methods=['GET'])
