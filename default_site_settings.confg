@@ -5,25 +5,22 @@
 ## ALL CONFIG NAMES MUST BE UPPERCASE!  ##
 
 # The basics...
-#HOST_NAME = "example.com"
-#SITE_NAME = "My New Web Site"
-#DEBUG = False
-#REQUIRE_SSL = False
+HOST_NAME = "example.com"
+SITE_NAME = "My New Web Site"
+DEBUG = True
+REQUIRE_SSL = (not DEBUG)
 
-#CGI_ROOT_FIX_APPLY = False # Some webservers mess up the root url
-#CGI_ROOT_FIX_PATH = "/" #this is usually correct path
+CGI_ROOT_FIX_APPLY = False # Some webservers mess up the root url
+CGI_ROOT_FIX_PATH = "/" #this is usually correct path
 
-#SECRET_KEY = "somereallylongstringtouseasakey"
+SECRET_KEY = "somereallylongstringtouseasakey"
 
 # set session expiration in seconds
-#PERMANENT_SESSION_LIFETIME = 60*20
+PERMANENT_SESSION_LIFETIME = 60*20
 
-## If you need to change the value for DATABASE_PATH_PREFIX to
-## match the absolute path to your database file.
-## You can change DATABASE to another name if you like.
-#DATABASE = "database.sqlite"
-#DATABASE_PATH_PREFIX = '<path_to_your_app>/'
-#DATABASE_URI = 'sqlite:///' + DATABASE_PATH_PREFIX + DATABASE
+# You can change database to another name if you like.
+DATABASE_NAME= "database.sqlite"
+DATABASE_PATH= 'instance/' + DATABASE_NAME
 
 ## Email Sending...
 #MAIL_SERVER = 'localhost'
@@ -33,11 +30,12 @@
 #MAIL_PASSWORD = ""
 #MAIL_DEFAULT_SENDER = ""
 #MAIL_DEFAULT_EMAIL = MAIL_USERNAME
-## Flask-Security needs this email address
-#SECURITY_EMAIL_SENDER = MAIL_USERNAME
 
 # Uploads ...
-#MAX_CONTENT_LENGTH = 300000
+MAX_CONTENT_LENGTH = 300000
+
+## some administrative settings
+ALLOW_USERNAME_CHANGE = True
 
 #Map Box Settings...
 #MAPBOX_PROJECT_ID = ""
@@ -46,13 +44,4 @@
 # Sets the default location when creating a new location pin if geolocation is not available
 #LOCATION_DEFAULT_LNG = -121.74439430236818
 #LOCATION_DEFAULT_LAT = 38.54422161206573
-
-## Flask-Security settings
-#SECURITY_PASSWORD_SALT = '989839ewjieu'
-#SECURITY_RECOVERABLE = True
-#SECURITY_REGISTERABLE = True
-#SECURITY_CONFIRMABLE = True
-#SECURITY_TRACKABLE = True
-#SECURITY_CHANGEABLE = True
-
 
