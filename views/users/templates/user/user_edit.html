@@ -12,7 +12,8 @@
         <dt>Email:
         <dd><input type=text size=30 name="email" value="{{rec.email|default('',true)}}"/>
         <dt>User Name:
-        <dd><input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}"/>
+        <dd><input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}" 
+            {% if not config.ALLOW_USERNAME_CHANGE %}disabled="disabled"{% endif %} />
         <dt>Password {% if currentPassword %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
         <dd><input type=password size=30 name="new_password" value=""/>
         <dt>Re-type password:

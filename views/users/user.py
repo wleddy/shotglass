@@ -4,7 +4,7 @@ from time import time
 import re
 from models import User, Role
 from views.utils import printException, cleanRecordID, looksLikeEmailAddress
-from views.users.login import matchPasswordToHash, setUserStatus
+from views.users.login import matchPasswordToHash, setUserStatus, getPasswordHash
 
 mod = Blueprint('user',__name__, template_folder='templates')
 
@@ -97,43 +97,42 @@ def edit(id=0):
         
     else:
         #have the request form
-        #ensure a value for the check box
         #import pdb;pdb.set_trace()
-        active = request.form.get('active')
-        if not active: 
-            active = "0"
-        
+        if user_handle:
+            rec = user.get(user_handle)
+        else:
+            ## create a new record stub
+            rec = user.new()
 
-        if True or validForm():
-            if user_handle:
-                rec = user.get(user_handle)
-            else:
-                ## create a new record stub
-                rec = user.new()
+        if validForm(rec):
         
             #Are we editing the current user's record?
             editingCurrentUser = ''
             if(g.user == rec.username):
-                editingCurrentUser = request.form['new_username'].strip()
+                if 'new_username' in request.form:
+                    editingCurrentUser = request.form['new_username'].strip()
+                else:
+                    editingCurrentUser = g.user
             else: 
                 if(g.user == rec.email):
                     editingCurrentUser = request.form['email'].strip()
             
-            import pdb;pdb.set_trace()
+            #import pdb;pdb.set_trace()
             #update the record
             user.update(rec,request.form)
-            pdb.set_trace()
+            #pdb.set_trace()
             
-            rec.active = str(active)
+            #ensure a value for the check box
+            rec.active = int(request.form.get('active','0'))
             
             user_name = ''
-            if request.form['new_username']:
+            if 'new_username' in request.form:
                 user_name = request.form['new_username'].strip()
             
-            if user_name != '':
-                rec.username = user_name
-            else:
-                rec.username = None
+                if user_name != '':
+                    rec.username = user_name
+                else:
+                    rec.username = None
         
             if rec.password != None and request.form['new_password'].strip() == '':
                 # Don't change the password
@@ -165,14 +164,13 @@ def edit(id=0):
         
         else:
             # form did not validate, give user the option to keep their old password if there was one
-            current_password = ""
-            if request.form["new_password"].strip() != "" and id > 0:
-                rec = user.get(id)
-                current_password = rec.password
-            rec=request.form
+            #need to restore the username
+            user.update(rec,request.form)
+            if 'new_username' in request.form:
+                rec.username = request.form['new_username'] #preserve user input
 
     # display form
-    return render_template('user/user_edit.html', rec=rec, current_password=current_password)
+    return render_template('user/user_edit.html', rec=rec)
     
 @mod.route('/user/register/', methods=['GET'])
 def register():
@@ -204,58 +202,44 @@ def delete(int:id=0):
 #    return redirect(g.listURL)
 #    
 #
-def validForm():
+def validForm(rec):
     # Validate the form
     goodForm = True
+    user = User(g.db)
     
-    if request.form['name'].strip() == '':
-        goodForm = False
-        flash('Name may not be blank')
-
     if request.form['email'].strip() == '':
         goodForm = False
         flash('Email may not be blank')
 
-    if request.form['email'] != '':
-        cur = User.query.filter(func.lower(User.email) == request.form['email'].strip().lower(), User.ID != request.form['ID']).count()
-        if cur == 0:
-            # be sure that no other user has this email as their username. Very unlikely...
-            cur = User.query.filter(func.lower(User.username) == request.form['email'].strip().lower(), User.ID != request.form['ID']).count()
+    if request.form['email'].strip() != '' and not looksLikeEmailAddress(request.form['email'].strip()):
+        goodForm = False
+        flash('That doesn\'t look like a valid email address')
 
-        if cur > 0 :
+    if request.form['email'].strip() != '':
+        #usr = select(where="lower(email) = '{}' and id <> {}".format(request.form['email'].lower().strip(),request.form['id']) func.lower(User.email) == request.form['email'].strip().lower(), User.ID != request.form['ID']).count()
+        found = user.get(request.form['email'].strip(),include_inactive=True)
+        if found and found.id != int(request.form['id']):
             goodForm = False
             flash('That email address is already in use')
-        #test the format of the email address (has @ and . after @)
-        elif not looksLikeEmailAddress(request.form['email']):
-            goodForm = False
-            flash('That doesn\'t look like a valid email address')
             
-    # user name must be unique
-    uName = request.form['username'].strip()
-    if uName == "None":
-        uName = ""
-    else :
-        cur = User.query.filter(func.lower(User.username) == request.form['new_username'].strip().lower(), User.ID != request.form['ID']).count()
-        if cur == 0:
-            # be sure no one else has this email address as their username... Unlikely, I know.
-            cur = User.query.filter(func.lower(User.email) == request.form['new_username'].strip().lower(), User.ID != request.form['ID']).count()
-            
-        if cur > 0 :
+    # user name must be unique if supplied
+    if 'new_username' in request.form:
+        if request.form['new_username'].strip() != '':
+            found = user.get(request.form['new_username'].strip(),include_inactive=True)
+            if found and found.id != int(request.form['id']):
+                goodForm = False
+                flash('That User Name is already in use')
+        
+        if request.form["new_username"].strip() != '' and request.form["new_password"].strip() == '' and rec.password == '':
             goodForm = False
-            flash('That User Name is already in use')
+            flash('There must be a password if there is a User Name')
         
-    passwordIsSet = ((User.query.filter(User.password != db.null(), User.ID == request.form['ID']).count()) > 0)
-    
-    if request.form["new_username"].strip() != '' and request.form["new_password"].strip() == '' and not passwordIsSet:
+    if request.form["new_password"].strip() == '' and request.form["confirm_password"].strip() != '' and rec.password != '':
         goodForm = False
-        flash('There must be a password if there is a User Name')
-        
-    if len(request.form["new_password"].strip()) == 0 and len(request.form["new_password"]) != 0 and passwordIsSet:
-        goodForm = False
-        flash('You can\'t enter a blank password.')
+        flash("You can't enter a blank password.")
     
     #passwords must match if present
-    if request.form['new_password'].strip() != '' and request.form['confirm_password'].strip() != request.form['new_password'].strip():
+    if request.form['confirm_password'].strip() != request.form['new_password'].strip():
         goodForm = False
         flash('Passwords don\'t match.')
         

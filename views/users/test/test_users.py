@@ -137,7 +137,7 @@ def test_user_delete():
     assert record_deleted == True
     record_deleted = user.delete('John')
     assert record_deleted == True
-    record_deleted = user.delete('John')
+    record_deleted = user.delete('John') # can't delete it twice
     assert record_deleted == False
     record_deleted = user.delete('none') # test that we can delete an inactive record
     assert record_deleted == True
@@ -145,15 +145,27 @@ def test_user_delete():
     assert record_deleted == True
     db.rollback()
     
+def test_user_profile_page(client):
+        with client as c:
+            from flask import session, g
+            result = c.get('/login/')  
+            assert result.status_code == 200
+            assert b'User Name or Email Address' in result.data 
+
+            result = c.post('login/', data={'userNameOrEmail': 'admin', 'password': 'password'},follow_redirects=True)
+            assert result.status == '200 OK'
+            assert b'Invalid User Name or Password' not in result.data
+            assert session['user'] == 'admin'
+    
+            # load the user page
+            result = c.get('/user/edit',follow_redirects=True)  
+            assert result.status_code == 200
+            assert b'Edit User' in result.data
+                
+
+
 ############################ The final 'test' ########################
 ######################################################################
-def test_delete_test_data():
-    # delete the records we created just to prove we can
-    f = open('views/users/test/test_data_delete.sql','r')
-    sql = f.read()
-    f.close()
-    cur = db.cursor()
-    cur.executescript(sql)
 
 def test_finished():
     try:
