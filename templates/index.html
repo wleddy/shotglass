@@ -5,12 +5,12 @@
 <h2>Hello {{g.user}}</h2>
 {% else %}
 <h2>Hello World</h2>
-<h2>You must be logged in to see more...</h2>
+<h3>Log in to see more...</h3>
 {% endif %}
 <ul class="list-menu">
     {% if g.user %}
-    <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
     <li><a href="{{ url_for('user.home')}}" >Manage Your User Profile</li>
+    <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
     {% else %}
     <li><a href="{{ url_for('login.login')}}" >Login</li>
     {% endif %}
