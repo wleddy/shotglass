@@ -12,11 +12,11 @@
         <dt>Email:
         <dd><input type=text size=30 name="email" value="{{rec.email|default('',true)}}"/>
         <dt>User Name:
-        <dd><input type=text size=30 name="username" value="{{rec.username|default('',true)}}"/>
+        <dd><input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}"/>
         <dt>Password {% if currentPassword %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
-        <dd><input type=password size=30 name="password" value=""/>
+        <dd><input type=password size=30 name="new_password" value=""/>
         <dt>Re-type password:
-        <dd><input type=password size=30 name="confirmPassword" value=""/>
+        <dd><input type=password size=30 name="confirm_password" value=""/>
         <dt>Address:
         <dd><input type=text size=30 name="address" value="{{rec.address|default('',true)}}"/>
         <dd><input type=text size=30 name="address2" value="{{rec.address2|default('',true)}}"/>

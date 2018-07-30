@@ -119,6 +119,15 @@ def test_user_update():
     
     db.rollback()
     
+    #test the update() method of _Table
+    rec = user.get('doris')
+    d = {'id':233,'address':'1234 Some Street',}
+    user.update(rec,d,True) #save to db
+    rec = user.get('doris')
+    assert rec.address == '1234 Some Street'
+    assert rec.id != 233
+        
+    db.rollback()
     
 def test_user_delete():
     from models import User, Role

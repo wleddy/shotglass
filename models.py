@@ -221,6 +221,23 @@ class _Table:
                  return rows[0]
         return None
         
+    def update(self,rec,form,save=False):
+        """Update the rec with the matching elements in form
+        rec is a record namedlist 
+        form is an InmutableMultiDict or a dictionary object
+        
+        The id element is never updated. Before calling this method be sure that any elements
+        in form that have names matching names in rec contain the values you want.
+        
+        Optionally can save the rec (but not committed) after update
+        """
+        for key,value in rec._asdict().items():
+            if key != 'id' and key in form:
+                rec._update([(key,form[key])])
+                
+        if save:
+            self.save(rec)
+            
         
 class Role(_Table):
     """Handle some basic interactions with the role table"""

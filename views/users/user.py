@@ -70,7 +70,7 @@ def edit(id=0):
 
     user = User(g.db)
     rec = None
-    currentPassword = ""
+    current_password = ""
     user_handle = None
     
     if id == 0 and g.user != None:
@@ -92,7 +92,7 @@ def edit(id=0):
             flash("Unable to locate user record")
             return redirect(url_for('home'))
             
-        currentPassword = rec.password
+        current_password = rec.password
             
         
     else:
@@ -114,40 +114,34 @@ def edit(id=0):
             #Are we editing the current user's record?
             editingCurrentUser = ''
             if(g.user == rec.username):
-                editingCurrentUser = request.form['username'].strip()
+                editingCurrentUser = request.form['new_username'].strip()
             else: 
                 if(g.user == rec.email):
                     editingCurrentUser = request.form['email'].strip()
             
+            import pdb;pdb.set_trace()
             #update the record
-            rec.email = request.form['email'].strip()
-            rec.first_name = request.form['first_name'].strip()
-            rec.last_name = request.form['last_name'].strip()
-            rec.address = request.form['address'].strip()
-            rec.address2 = request.form['address2'].strip()
-            rec.city = request.form['city'].strip()
-            rec.state = request.form['state'].strip()
-            rec.zip = request.form['zip'].strip()
-            rec.phone = request.form['phone'].strip()
-            #rec.role = request.form['role'].strip()
+            user.update(rec,request.form)
+            pdb.set_trace()
+            
             rec.active = str(active)
             
             user_name = ''
-            if request.form['username']:
-                user_name = request.form['username'].strip()
+            if request.form['new_username']:
+                user_name = request.form['new_username'].strip()
             
             if user_name != '':
                 rec.username = user_name
             else:
                 rec.username = None
         
-            if rec.password != None and request.form['password'].strip() == '':
+            if rec.password != None and request.form['new_password'].strip() == '':
                 # Don't change the password
                 pass
             else:
                 user_password = ''
-                if request.form['password'].strip() != '':
-                    user_password = getPasswordHash(request.form['password'].strip())
+                if request.form['new_password'].strip() != '':
+                    user_password = getPasswordHash(request.form['new_password'].strip())
 
                 if user_password != '':
                     rec.password = user_password
@@ -171,14 +165,14 @@ def edit(id=0):
         
         else:
             # form did not validate, give user the option to keep their old password if there was one
-            currentPassword = ""
-            if request.form["password"].strip() != "" and id > 0:
+            current_password = ""
+            if request.form["new_password"].strip() != "" and id > 0:
                 rec = user.get(id)
-                currentPassword = rec.password
+                current_password = rec.password
             rec=request.form
 
     # display form
-    return render_template('user/user_edit.html', rec=rec, currentPassword=currentPassword)
+    return render_template('user/user_edit.html', rec=rec, current_password=current_password)
     
 @mod.route('/user/register/', methods=['GET'])
 def register():
@@ -241,10 +235,10 @@ def validForm():
     if uName == "None":
         uName = ""
     else :
-        cur = User.query.filter(func.lower(User.username) == request.form['username'].strip().lower(), User.ID != request.form['ID']).count()
+        cur = User.query.filter(func.lower(User.username) == request.form['new_username'].strip().lower(), User.ID != request.form['ID']).count()
         if cur == 0:
             # be sure no one else has this email address as their username... Unlikely, I know.
-            cur = User.query.filter(func.lower(User.email) == request.form['username'].strip().lower(), User.ID != request.form['ID']).count()
+            cur = User.query.filter(func.lower(User.email) == request.form['new_username'].strip().lower(), User.ID != request.form['ID']).count()
             
         if cur > 0 :
             goodForm = False
@@ -252,16 +246,16 @@ def validForm():
         
     passwordIsSet = ((User.query.filter(User.password != db.null(), User.ID == request.form['ID']).count()) > 0)
     
-    if request.form["username"].strip() != '' and request.form["password"].strip() == '' and not passwordIsSet:
+    if request.form["new_username"].strip() != '' and request.form["new_password"].strip() == '' and not passwordIsSet:
         goodForm = False
         flash('There must be a password if there is a User Name')
         
-    if len(request.form["password"].strip()) == 0 and len(request.form["password"]) != 0 and passwordIsSet:
+    if len(request.form["new_password"].strip()) == 0 and len(request.form["new_password"]) != 0 and passwordIsSet:
         goodForm = False
         flash('You can\'t enter a blank password.')
     
     #passwords must match if present
-    if request.form['password'].strip() != '' and request.form['confirmPassword'].strip() != request.form['password'].strip():
+    if request.form['new_password'].strip() != '' and request.form['confirm_password'].strip() != request.form['new_password'].strip():
         goodForm = False
         flash('Passwords don\'t match.')
         
