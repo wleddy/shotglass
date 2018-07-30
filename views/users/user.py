@@ -8,46 +8,6 @@ from views.users.login import matchPasswordToHash, setUserStatus, getPasswordHas
 
 mod = Blueprint('user',__name__, template_folder='templates')
 
-def test():
-    out = "No users found"
-    user = User(g.db)
-    rec = user.get_by_username_or_email("admin")
-    print(session)
-    if rec:
-        out = "<h1>Hello {} {}</h1>".format(rec.first_name,rec.last_name)
-        roles = user.get_roles(rec.id,order_by='name')
-        if roles:
-            out += "<p>Your roles include:</p>"
-            out += '<table><tr>'
-            cols = Role(g.db).get_column_names()
-            del cols[0]
-            for col in cols:
-                out += '<th style="border:1pt black solid;">{}</th>'.format(col.title())
-            for role in roles:
-                out += "<tr>"
-                for col in range(1,len(cols)+1):
-                    out += '<td style="border:1pt #666 solid;">{}</td>'.format(role[col])
-                out += "</tr>"
-            out += "</table>"
-        else:
-            out += "<p>You have no roles assigned.</p>"
-            
-        recs = Role(g.db).select(order_by='description')
-        if recs:
-            for rec in recs:
-                out +='<p>{} {}</p>'.format(rec.name,rec.description)
-        else:
-            out += "<p>No Role records found</p>"
-            
-        recs = user.select()
-        if recs:
-            out += '<h3>Users</h3>'
-            for rec in recs:
-                out += '<p>{} {}</p>'.format(rec.first_name,rec.last_name)
-        else:
-            out += "No Users Found"
-    return out
-    
 
 def setExits():
     g.listURL = url_for('.home')

@@ -1,6 +1,9 @@
 from models import Database, init_db
-from flask import Flask, render_template, g, session
+from flask import Flask, render_template, g, session, url_for
 from flask_mail import Mail
+
+from models import User,Role
+from admin import Admin
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -36,6 +39,12 @@ def _before():
     g.user = None
     if 'user' in session:
         g.user = session['user']
+        
+    if 'admin' not in g:
+        g.admin = Admin(g.db)
+        g.admin.register(User,url_for('user.home'),display_name='Users')
+        g.admin.register(Role,url_for('user.home'),display_name='User Permissions')
+
 
 
 @app.teardown_request
