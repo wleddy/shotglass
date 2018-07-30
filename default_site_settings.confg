@@ -5,7 +5,7 @@
 ## ALL CONFIG NAMES MUST BE UPPERCASE!  ##
 
 # The basics...
-HOST_NAME = "example.com"
+SERVER_NAME = "example.com"
 SITE_NAME = "My New Web Site"
 DEBUG = True
 REQUIRE_SSL = (not DEBUG)
