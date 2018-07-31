@@ -27,7 +27,7 @@ class Admin():
     def register(self,table,url,**kwargs):
         """Add an item to the admin_list"""
         display_name=kwargs.get('display_name',None)
-        minimum_rank_required=kwargs.get('minimum_rank_required',0)
+        minimum_rank_required=kwargs.get('minimum_rank_required',99999999) #No one can access without a qualifiying role
         role_list=kwargs.get('role_list',[])
         
         table_ref = table(self.db)
@@ -52,8 +52,8 @@ class Admin():
                     if roles:
                         for role in roles:
                             for list_item in temp_list:
-                                if 'role_list' in list_item and role.name in list_item['role_list']:
+                                if role.name in list_item['role_list']:
                                     return True
-                                if 'minimum_rank_required' in list_item and list_item['minimum_rank_required'] <= role.rank:
+                                if list_item['minimum_rank_required'] <= role.rank:
                                     return True
         return False
