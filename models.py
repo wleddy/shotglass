@@ -89,9 +89,12 @@ class _Table:
             out = [self.data_tuple(*rec) for rec in row_list]
         return out
         
-    def new(self):
-        """return an 'empty' namedlist for the table"""
-        return self.data_tuple()
+    def new(self,set_defaults=True):
+        """return an 'empty' namedlist for the table. Normally set the default values for the table"""
+        rec = self.data_tuple()
+        if set_defaults:
+            self.set_defaults(rec)
+        return rec
         
     def save(self,row_data,**kwargs):
         """Save the data in row_data to the db.
@@ -355,7 +358,14 @@ class User(_Table):
         order_by = kwargs.get('order_by',self.order_by_col)
         
         return super().select(where=where,order_by=order_by)
-                
+        
+    def update_last_access(self,user_id,no_commit=False):
+        """Update the 'last_access field with the current datetime. Default is for record to be committed"""
+        if type(user_id) is int:
+            self.db.execute('update user set last_access = datetime() where id = ?',(user_id,))
+            if not no_commit:
+                self.db.commit()
+        
     def create_table(self):
         """Define and create the user tablel"""
         
