@@ -40,7 +40,7 @@ def delete_test_db():
         os.remove(filespec)
         
 def test_database():
-    from models import Database
+    from database import Database
     db2 = Database(filespec)
     assert type(db2) is Database
     del db2

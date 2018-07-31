@@ -1,4 +1,4 @@
-"""views.utils
+"""users.utils
     Some utility functions
 """
 

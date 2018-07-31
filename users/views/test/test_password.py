@@ -4,7 +4,7 @@ sys.path.append('') ##get import to look in the working dir.
 
         
 def test_password():
-    import views.users.password as login
+    import users.views.password as login
     # basic tests
     passwords = ("password", 
                  "PassWord",

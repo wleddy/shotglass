@@ -2,7 +2,7 @@ import sys
 #print(sys.path)
 sys.path.append('') ##get import to look in the working dir.
 
-from views.users.admin import Admin
+from users.views.admin import Admin
 import app
 from models import User,Role
 import os

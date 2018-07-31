@@ -3,8 +3,8 @@ from flask import request, session, g, redirect, url_for, abort, \
 from time import time
 import re
 from models import User, Role
-from views.utils import printException, cleanRecordID, looksLikeEmailAddress
-from views.users.login import matchPasswordToHash, setUserStatus, getPasswordHash
+from users.utils import printException, cleanRecordID, looksLikeEmailAddress
+from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
 
 mod = Blueprint('user',__name__, template_folder='templates', url_prefix='/user')
 

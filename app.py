@@ -1,9 +1,9 @@
-from models import Database, init_db
+from database import Database
 from flask import Flask, render_template, g, session, url_for
 from flask_mail import Mail
 
-from models import User,Role
-from views.users.admin import Admin
+from models import User,Role,init_db
+from users.views.admin import Admin
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -52,13 +52,13 @@ def _teardown(exception):
         g.db.close()
 
 
-from views.users import user
+from users.views import user
 @app.route('/')
 def home():
     return render_template('index.html')
     return user.test()
 
-from views.users import user, login
+from users.views import user, login
 app.register_blueprint(user.mod)
 app.register_blueprint(login.mod)
 

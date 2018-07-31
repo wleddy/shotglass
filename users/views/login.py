@@ -3,7 +3,7 @@ from flask import request, session, g, redirect, url_for, abort, \
 from time import sleep
 
 from models import User
-from views.users.password import getPasswordHash, matchPasswordToHash
+from users.views.password import getPasswordHash, matchPasswordToHash
 
 mod = Blueprint('login',__name__, template_folder='templates')
 

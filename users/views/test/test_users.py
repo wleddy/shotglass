@@ -41,7 +41,7 @@ def delete_test_db():
         
 def test_create_test_data():
     # Populate the test database
-    f = open('views/users/test/test_data_create.sql','r')
+    f = open('users/views/test/test_data_create.sql','r')
     sql = f.read()
     f.close()
     cur = db.cursor()
@@ -49,7 +49,7 @@ def test_create_test_data():
     
     
 def test_user_get():
-    import views.users.password as login
+    import users.views.password as login
     from models import User
     
     #do some tests...
