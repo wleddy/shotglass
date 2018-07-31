@@ -39,7 +39,7 @@ class Admin():
     def has_access(self,user_name,display_name=None):
         """Test to see if the user represented by user name has access to ANY admin items
         If the display_name is specified, only check to see if user has access to that table"""
-        from models import User
+        from users.models import User
         if len(self.admin_list) > 0:
             user = User(self.db)
             rec = user.get(user_name)

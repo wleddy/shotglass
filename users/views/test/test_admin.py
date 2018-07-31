@@ -4,7 +4,7 @@ sys.path.append('') ##get import to look in the working dir.
 
 from users.views.admin import Admin
 import app
-from models import User,Role
+from users.models import User,Role
 import os
 import pytest
 

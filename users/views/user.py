@@ -2,7 +2,7 @@ from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint
 from time import time
 import re
-from models import User, Role
+from users.models import User, Role
 from users.utils import printException, cleanRecordID, looksLikeEmailAddress
 from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
 

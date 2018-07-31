@@ -40,7 +40,7 @@ def delete_test_db():
 
     
 def test_roles():
-    from models import Role
+    from users.models import Role
     #db = get_test_db()
     
     assert Role(db).get(0) == None 

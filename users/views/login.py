@@ -2,7 +2,7 @@ from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint
 from time import sleep
 
-from models import User
+from users.models import User
 from users.views.password import getPasswordHash, matchPasswordToHash
 
 mod = Blueprint('login',__name__, template_folder='templates')
