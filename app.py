@@ -42,9 +42,8 @@ def _before():
         
     if 'admin' not in g:
         g.admin = Admin(g.db)
-        g.admin.register(User,url_for('user.home'),display_name='Users')
-        g.admin.register(Role,url_for('user.home'),display_name='User Permissions')
-
+        g.admin.register(User,url_for('user.home'),display_name='Users',minimum_rank_required=500,role_list=['admin',])
+        g.admin.register(Role,url_for('user.home'),display_name='User Permissions',minimum_rank_required=1000)
 
 
 @app.teardown_request
