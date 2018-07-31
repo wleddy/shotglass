@@ -1,6 +1,6 @@
 import sqlite3
 from namedlist import namedlist #Like namedtuples but mutable
-from users.utils import cleanRecordID
+from utils import cleanRecordID
 
 
 class Database:
