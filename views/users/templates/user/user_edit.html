@@ -3,12 +3,12 @@
 {% block body %}
 	<h2>Edit {{ g.title }}</h2>	
     <form action="{{ g.editURL }}" method=post class="entry">
-		<input type=hidden name="id" value="{{rec.id|default('0',true)}}">
-      <dl>
 		{% include "editFormButtons.html" %}
+		<input type=hidden name="id" value="{{rec.id}}">
+      <dl>
 		<dt>Name:
-        <dd><input type=text size=30 name="first_name" value="{{rec.first_name}}"/>
-            <input type=text size=30 name="last_name" value="{{rec.last_name}}"/>
+        <dd><input type=text size=30 name="first_name" value="{{rec.first_name|default('',true)}}"/>
+            <input type=text size=30 name="last_name" value="{{rec.last_name|default('',true)}}"/>
         <dt>Email:
         <dd><input type=text size=30 name="email" value="{{rec.email|default('',true)}}"/>
         <dt>User Name:

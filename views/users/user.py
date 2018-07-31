@@ -6,63 +6,91 @@ from models import User, Role
 from views.utils import printException, cleanRecordID, looksLikeEmailAddress
 from views.users.login import matchPasswordToHash, setUserStatus, getPasswordHash
 
-mod = Blueprint('user',__name__, template_folder='templates')
+mod = Blueprint('user',__name__, template_folder='templates', url_prefix='/user')
 
 
 def setExits():
     g.listURL = url_for('.home')
+    g.adminURL = url_for('.admin',id=0)
     g.editURL = url_for('.edit')
     g.deleteURL = url_for('.delete')
+    g.homeURL = url_for('home')
     g.title = 'User'
 
-@mod.route('/user/')
+@mod.route('/')
 def home():
     setExits()
     return render_template('user/user_index.html')
-
+    
+@mod.route('/edit/<int:id>/', methods=['POST','GET'])
+def admin(id=None):
+    """Administrator access for the User table records
+    """
+    setExits()
+    if not id:
+        flash("No User identifier supplied")
+        return redirect(g.listURL)
+        
+    #import pdb;pdb.set_trace()
+        
+    id = cleanRecordID(id)
+    if(id < 0):
+        flash("That is an invalid id")
+        return redirect(g.listURL)
+        
+    #session['user_edit_token'] = id
+    
+    return edit(id)
+    
 
 ## Edit the user
-@mod.route('/user/edit', methods=['POST', 'GET'])
-@mod.route('/user/edit/', methods=['POST', 'GET'])
-@mod.route('/user/edit/<id>/', methods=['POST', 'GET'])
-def edit(id=0):
+@mod.route('/edit', methods=['POST', 'GET'])
+@mod.route('/edit/', methods=['POST', 'GET'])
+def edit(user_handle=None):
     setExits()
 
     user = User(g.db)
     rec = None
-    current_password = ""
-    user_handle = None
     
-    if id == 0 and g.user != None:
-        user_handle = g.user
-    elif id == 0:
-        #create a new record
-        pass
-    else:
-        id = cleanRecordID(id)
-        if id < 0:
+    #import pdb;pdb.set_trace()
+    
+    if user_handle == 0:
+        #new recod
+        #update the form submission url to go to the admin method
+        g.editURL = g.editURL + '{}/'.format(user_handle)
+    elif user_handle:
+        user_handle = cleanRecordID(user_handle)
+        if user_handle < 0:
             flash("That is not a valid ID")
             return redirect(g.listURL)
-        user_handle = id
+    elif g.user != None:
+        user_handle = g.user
+    else:
+        flash("You do not have access to that function")
+        return redirect(g.homeURL)
         
     if not request.form:
         """ if no form object, send the form page """
-        rec = user.get(user_handle)
-        if not rec:
-            flash("Unable to locate user record")
-            return redirect(url_for('home'))
-            
-        current_password = rec.password
-            
-        
+        if not user_handle:
+            # This should never happen
+            flash("You do not have access to that area")
+            return redirect(g.homeURL)
+        elif user_handle == 0:
+            rec = user.new()
+        else:
+            rec = user.get(user_handle)
+            if not rec:
+                flash("Unable to locate user record")
+                return redirect(url_for('home'))
     else:
         #have the request form
         #import pdb;pdb.set_trace()
-        if user_handle:
+        if user_handle and request.form['id'] != 'None':
             rec = user.get(user_handle)
         else:
-            ## create a new record stub
+            # its a new unsaved record
             rec = user.new()
+            user.update(rec,request.form)
 
         if validForm(rec):
         
@@ -111,6 +139,9 @@ def edit(id=0):
                 user.save(rec)
                 g.db.commit()
                 
+                if 'user_edit_token' in session:
+                    del session['user_edit_token']
+                    
                 # if the username or email address are the same as g.user
                 # update g.user if it changes
                 if(editingCurrentUser != ''):
@@ -132,14 +163,14 @@ def edit(id=0):
     # display form
     return render_template('user/user_edit.html', rec=rec)
     
-@mod.route('/user/register/', methods=['GET'])
+@mod.route('/register/', methods=['GET'])
 def register():
     setExits()
     return "Registration not done yet..."
 
-@mod.route('/user/delete', methods=['GET'])
-@mod.route('/user/delete/', methods=['GET'])
-@mod.route('/user/delete/<id>/', methods=['GET'])
+@mod.route('/delete', methods=['GET'])
+@mod.route('/delete/', methods=['GET'])
+@mod.route('/delete/<id>/', methods=['GET'])
 def delete(int:id=0):
     return "Delete not implemented yet"
 #    setExits()
@@ -173,22 +204,23 @@ def validForm(rec):
 
     if request.form['email'].strip() != '' and not looksLikeEmailAddress(request.form['email'].strip()):
         goodForm = False
-        flash('That doesn\'t look like a valid email address')
+        flash("That doesn't look like a valid email address")
 
     if request.form['email'].strip() != '':
-        #usr = select(where="lower(email) = '{}' and id <> {}".format(request.form['email'].lower().strip(),request.form['id']) func.lower(User.email) == request.form['email'].strip().lower(), User.ID != request.form['ID']).count()
         found = user.get(request.form['email'].strip(),include_inactive=True)
-        if found and found.id != int(request.form['id']):
-            goodForm = False
-            flash('That email address is already in use')
+        if found:
+            if request.form['id'] == 'None' or found.id != int(request.form['id']):
+                goodForm = False
+                flash('That email address is already in use')
             
     # user name must be unique if supplied
     if 'new_username' in request.form:
         if request.form['new_username'].strip() != '':
             found = user.get(request.form['new_username'].strip(),include_inactive=True)
-            if found and found.id != int(request.form['id']):
-                goodForm = False
-                flash('That User Name is already in use')
+            if found:
+                if request.form['id'] == 'None' or found.id != int(request.form['id']):
+                    goodForm = False
+                    flash('That User Name is already in use')
         
         if request.form["new_username"].strip() != '' and request.form["new_password"].strip() == '' and rec.password == '':
             goodForm = False

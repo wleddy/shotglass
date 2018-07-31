@@ -11,11 +11,13 @@
     {% if g.user %}
     <li><a href="{{ url_for('user.home')}}" >Manage Your User Profile</li>
     <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
-        {% if g.admin %}
+        {% if g.admin and g.admin.has_access(g.user)%}
         <h3>Admin List</h3>
         <ul class="list-menu">
             {% for item in g.admin.admin_list %}
+            {% if g.admin.has_access(g.user,item['display_name'])%}
             <li><a href="{{item['url']}}">{{item['display_name']}}</a></li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}
