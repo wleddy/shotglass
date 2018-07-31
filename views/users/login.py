@@ -40,6 +40,7 @@ def login():
                 return render_template('/login/inactive.html')
                 
             # log user in...
+            User(g.db).update_last_access(rec.id)
             setUserStatus(request.form["userNameOrEmail"],rec.id)
             
             next = request.form.get('next','')
