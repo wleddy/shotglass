@@ -5,6 +5,7 @@ import re
 from users.models import User, Role
 from users.utils import printException, cleanRecordID, looksLikeEmailAddress
 from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
+from users.admin import login_required, table_access_required
 
 mod = Blueprint('user',__name__, template_folder='templates', url_prefix='/user')
 
@@ -23,6 +24,7 @@ def home():
     return render_template('user/user_index.html')
     
 @mod.route('/edit/<int:id>/', methods=['POST','GET'])
+@table_access_required(User)
 def admin(id=None):
     """Administrator access for the User table records
     """
@@ -46,6 +48,7 @@ def admin(id=None):
 ## Edit the user
 @mod.route('/edit', methods=['POST', 'GET'])
 @mod.route('/edit/', methods=['POST', 'GET'])
+@login_required
 def edit(user_handle=None):
     setExits()
 
@@ -171,6 +174,7 @@ def register():
 @mod.route('/delete', methods=['GET'])
 @mod.route('/delete/', methods=['GET'])
 @mod.route('/delete/<id>/', methods=['GET'])
+@table_access_required(User)
 def delete(int:id=0):
     return "Delete not implemented yet"
 #    setExits()

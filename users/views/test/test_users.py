@@ -148,6 +148,17 @@ def test_user_delete():
 def test_user_profile_page(client):
         with client as c:
             from flask import session, g
+            # attempt access without log in
+            result = c.get('/user/edit',follow_redirects=True)  
+            assert result.status_code == 200
+            assert b'Login Required' in result.data
+            
+            #attempt to get admin access
+            result = c.get('/user/edit/1/',follow_redirects=True)  
+            assert result.status_code == 200
+            assert b'Permission Denied' in result.data
+
+            #log in
             result = c.get('/login/')  
             assert result.status_code == 200
             assert b'User Name or Email Address' in result.data 

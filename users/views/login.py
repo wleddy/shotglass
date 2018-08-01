@@ -16,6 +16,8 @@ def setExits():
 def login():
     setExits()
     g.user = g.get('user',None)
+    next = request.args.get('next',request.form.get('next',''))
+    
     if g.user is not None:
         flash("Already Logged in...")
         return redirect(url_for("home"))
@@ -33,6 +35,7 @@ def login():
         #print("db={}".format(db))
         rec = User(g.db).get(request.form["userNameOrEmail"],include_inactive=True)
         #print(rec)
+        #next = 
         if rec and matchPasswordToHash(request.form["password"],rec.password):
             session['loginTries'] = 0
             if rec.active == 0:
@@ -43,7 +46,6 @@ def login():
             User(g.db).update_last_access(rec.id)
             setUserStatus(request.form["userNameOrEmail"],rec.id)
             
-            next = request.form.get('next','')
             if next:
                 return redirect(next)
             return redirect(url_for('home')) #logged in...
@@ -59,7 +61,7 @@ def login():
     if session['loginTries'] > 5:
         sleep(session['loginTries']/.8)
         
-    return render_template('login/login.html', form=request.form)
+    return render_template('login/login.html', form=request.form, next=next)
        
     
 @mod.route('/logout', methods=['GET'])

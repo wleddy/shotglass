@@ -4,6 +4,9 @@
 ## administrator.
 ###########################################
 
+from flask import g, request, redirect, url_for, flash
+from functools import wraps
+
 class Admin():
     """Register tables to be administered then check a user's access permissions
     
@@ -77,3 +80,25 @@ class Admin():
                     return True
                     
         return False
+        
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            flash("Login Required")
+            return redirect(url_for('login.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+    
+def table_access_required(table=None):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if g.user is None or not g.admin or not g.admin.has_access(g.user,table):
+                flash("Permission Denied")
+                return redirect(url_for('login.login', next=request.url))
+            return f(*args,**kwargs)
+        return decorated_function
+    return decorator
+    
