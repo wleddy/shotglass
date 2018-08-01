@@ -2,7 +2,7 @@ import sys
 #print(sys.path)
 sys.path.append('') ##get import to look in the working dir.
 
-from users.views.admin import Admin
+from users.admin import Admin
 import app
 from users.models import User,Role
 import os
@@ -23,15 +23,18 @@ def delete_test_db():
         
 def test_admin():
    admin = Admin(db)
-   admin.register(User,'/user/',display_name='Users',minimum_rank_required=500,role_list=['admin',])
+   admin.register(User,'/user/',display_name='Users',minimum_rank_required=5000,role_list=['admin',])
    admin.register(Role,'/role/',display_name='User Permissions',minimum_rank_required=2000)
+   assert len(admin.permissions) == 2
+   #Re-registering a role should replace the previous permission item
    
-   assert len(admin.admin_list) == 2
+   admin.register(User,'/user/',display_name='Users',minimum_rank_required=500,role_list=['admin',])
+   assert len(admin.permissions) == 2
    assert admin.has_access('admin') == True
-   assert admin.has_access('admin','Users') == True
-   assert admin.has_access('admin','User Permissions') == False
+   assert admin.has_access('admin',User) == True
+   assert admin.has_access('admin',Role) == False
    assert admin.has_access('bleddy') == False
-   assert admin.has_access('bleddy','Users') == False
+   assert admin.has_access('bleddy',User) == False
    assert admin.has_access('') == False
     
     

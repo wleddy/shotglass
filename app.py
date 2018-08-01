@@ -3,7 +3,7 @@ from flask import Flask, render_template, g, session, url_for
 from flask_mail import Mail
 
 from users.models import User,Role,init_db
-from users.views.admin import Admin
+from users.admin import Admin
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)

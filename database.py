@@ -1,6 +1,6 @@
 import sqlite3
 from namedlist import namedlist #Like namedtuples but mutable
-from utils import cleanRecordID
+from users.utils import cleanRecordID
 
 
 class Database:
@@ -32,10 +32,10 @@ class SqliteTable:
     """Handle some basic interactions with the user table"""
     def __init__(self,db_connection):
         self.table_name = None
-            
         self.db = db_connection
         self.order_by_col = 'id' #default orderby column(s)
         self.defaults = {}
+        self._display_name = None #use to override the name display
         
     def create_table(self,definition=""):
         """The default table definition script. definition arg is a string of valid SQL"""
@@ -52,7 +52,10 @@ class SqliteTable:
         
     @property
     def display_name(self):
-        return self.table_name.replace('_',' ').title()
+        if self._display_name:
+            return self._display_name
+            
+        return '{}s'.format(self.table_name.replace('_',' ').title())
 
     def init_table(self):
         """Base init method. Just create the table"""
