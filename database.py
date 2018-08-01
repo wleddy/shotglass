@@ -49,6 +49,10 @@ class SqliteTable:
             'id' INTEGER NOT NULL PRIMARY KEY{}
             )""".format(self.table_name,definition,)
         self.db.execute(sql)
+        
+    @property
+    def display_name(self):
+        return self.table_name.replace('_',' ').title()
 
     def init_table(self):
         """Base init method. Just create the table"""
