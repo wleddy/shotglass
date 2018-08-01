@@ -14,8 +14,8 @@
         {% if g.admin and g.admin.has_access(g.user)%}
         <h3>Admin List</h3>
         <ul class="list-menu">
-            {% for item in g.admin.admin_list %}
-            {% if g.admin.has_access(g.user,item['display_name'])%}
+            {% for item in g.admin.permissions %}
+            {% if g.admin.has_access(g.user,item['table'])%}
             <li><a href="{{item['url']}}">{{item['display_name']}}</a></li>
             {% endif %}
             {% endfor %}

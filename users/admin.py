@@ -12,13 +12,15 @@ class Admin():
         
     Register an admin table:
         Admin.register(TableObj,url,[,display_name=None[,minimum_rank_required=None[,roles=None]]])
+        results in an item being added to self.permissions:
+        self.permissions = [{table,display_name,url,minimum_rank_required(default = 99999999),roles(default = [])},]
         
-    admin_list = [{table,display_name,url,minimum_rank_required(default = 99999999),roles(default = [])},]
+        Registering a table again will replace the previous registration for that table.
     
-    When processing the admin_list test:
-         that the current user has a role with at least this rank
+    When assessing permissions test that the specified user (by id or username) has:
+         a role with at least minimum_rank_required
          OR
-         that the current user has a role (name) in the list
+         a role (by name) in the list roles
     """
     
     def __init__(self,db):
