@@ -13,11 +13,12 @@ class Admin():
     Register an admin table:
         Admin.register(TableObj,url,[,display_name=None[,minimum_rank_required=None[,role_list=None]]])
         
-    admin_list = [{display_name,url,minimum_rank_required(default = None),role_list(default = None)},]
+    admin_list = [{table,display_name,url,minimum_rank_required(default = 99999999),role_list(default = [])},]
+    
     When processing the admin_list test:
-         if minimum_rank_required is not None, the current user has a role with at least this rank
+         that the current user has a role with at least this rank
          OR
-         if role_list is not None, the current user has a role (name) in the list
+         that the current user has a role (name) in the list
     """
     
     def __init__(self,db):
@@ -32,9 +33,9 @@ class Admin():
         
         table_ref = table(self.db)
         if not display_name:
-            display_name = table_ref.table_name.replace('_',' ').title()
+            display_name = table_ref.display_name
             
-        self.admin_list.append({'display_name':display_name,'url':url,'minimum_rank_required':minimum_rank_required,'role_list':role_list})
+        self.admin_list.append({'table':table,'display_name':display_name,'url':url,'minimum_rank_required':minimum_rank_required,'role_list':role_list})
            
     def has_access(self,user_name,display_name=None):
         """Test to see if the user represented by user name has access to ANY admin items
