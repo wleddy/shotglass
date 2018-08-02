@@ -6,7 +6,7 @@
         <div class="dropdown-content">
             <ul>
                 {% if g.user %}
-                <li><a href="{{ url_for('user.edit')}}" >Manage Profile</li>
+                <li><a href="{{ url_for('user.edit')}}" >Manage Profile</a></li>
                 <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
                     {% if g.admin and g.admin.has_access(g.user)%}
                         <p class="dd-menu-divider">Admin</p>
@@ -21,9 +21,9 @@
         </div>
     </div>
     <div>
-        <p class="menu-item" ><a href="/">item 1</a></p>
-        <p class="menu-item" ><a href="/">item 2</a></p>
-        <p class="menu-item" ><a href="/">item 3</a></p>
+        <p class="menu-item" ><a href="/">Home</a></p>
+        <p class="menu-item" ><a href="/">About</a></p>
+        <p class="menu-item" ><a href="/">Contact Us</a></p>
     </div>
     <p class="clear">&nbsp;</p>
 </div>

@@ -221,6 +221,11 @@ p.flash {
 .menu-item a {
     color:black;
     text-decoration:none;
+    display: inline-block;     
+    position: relative;    
+    z-index: 1;     
+    padding: .6em;     
+    margin: -.6em; 
 }
 .menu-item:hover > a {
     color:white;
@@ -251,7 +256,7 @@ p.flash {
     /*font-weight:800;*/
 }
 .dd-menu-header a:hover, .dd-menu-header:hover > a {
-    color:white;
+    color:white;    
 }
 .dropdown:hover p.dd-menu-header{
     color:white;
@@ -278,13 +283,19 @@ p.flash {
 .dropdown-content ul li a  {
     color:black;
     text-decoration:none;
+    display: inline-block;     
+    position: relative;    
+    z-index: 1;     
+    padding: .3em;     
+    margin: -.3em; 
+    min-width:100pt;
 }
 .dropdown-content ul li a:hover {
     color:white;
 }
 .dropdown-content ul li:hover, .dropdown-content ul li:hover > a {
     background-color:#bbb;
-    color:white;
+    color:white;    
 }
 .dropdown:hover .dropdown-content {
     display: block;
