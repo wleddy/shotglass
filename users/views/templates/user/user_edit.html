@@ -14,13 +14,13 @@
         <dt>User Name:
         <dd><input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}" 
             {% if not config.ALLOW_USERNAME_CHANGE %}disabled="disabled"{% endif %} />
-        <dt>Password {% if currentPassword %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
+        <dt>Password {% if rec.password and rec.password != '' %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
         <dd><input type=password size=30 name="new_password" value=""/>
         <dt>Re-type password:
         <dd><input type=password size=30 name="confirm_password" value=""/>
         <dt>Address:
-        <dd><input type=text size=30 name="address" value="{{rec.address|default('',true)}}"/>
-        <dd><input type=text size=30 name="address2" value="{{rec.address2|default('',true)}}"/>
+        <dd><input type=text size=47 name="address" value="{{rec.address|default('',true)}}"/>
+        <dd><input type=text size=47 name="address2" value="{{rec.address2|default('',true)}}"/>
         <dd>
             <input type=text size=20 name="city" value="{{rec.city|default('',true)}}"/>
             <input type=text size=3 name="state" value="{{rec.state|default('',true)}}"/>
@@ -39,7 +39,7 @@
 		</select></dd>
         {% endif %}
         <dt>Active:<input type=checkbox  name="active" value="1" {% if rec.active %} checked="checked" {% endif %}/>
-        <dt>Last Access: {{rec.last_access|default('Never',true)}}</dt>
       </dl>
+        <p><strong>Last Access:</strong> {{rec.last_access|default('Never',true)}} (UTC)</p>
     </form>
 {% endblock %}
