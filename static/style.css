@@ -29,8 +29,8 @@ div {zoom:1;height:1%;}
 */
 
 html {
-	background-color: white;
-	color:rgb(65,65,65);
+	background-color: #efefef;
+	color:#222;
 	font-family:helvetica,arial,sans-serif;
 }
 
@@ -72,10 +72,24 @@ code {
     line-height:.8;
 }
 
- input, textarea, button {
-    font-size:10pt;
+input, textarea {
+    padding:3pt;
+    font-size:1em;
     font-family:helvetica,arial,sans-serif;
- }
+    background-color:white;
+}
+button, input[type=submit]{
+    padding:5px 12px; 
+    border:2px solid #aaa; 
+    border-radius:8px;
+    background-color:#ccc;
+    cursor:pointer;
+}
+button:hover, input[type=submit]:hover {
+    background-color:#aac;
+    border-color:#aac;
+    color:#eee;
+}
 input.num {text-align:right;}
 
 
@@ -197,8 +211,8 @@ p.flash {
     background-color:#eee;
     margin:6pt 0;
     padding-left:20pt;
-    border-top:.5pt solid lightgray;
-    border-bottom:.5pt solid lightgray;
+    border-top:.5pt solid #888;
+    border-bottom:.5pt solid #888;
 }
 #profile-menu {
     float:right;
@@ -253,7 +267,11 @@ p.flash {
 .dd-menu-header a {
     text-decoration:none;
     color:black;
-    /*font-weight:800;*/
+    display: inline-block;     
+    position: relative;    
+    z-index: 1;     
+    padding: .3em;     
+    margin: -.3em; 
 }
 .dd-menu-header a:hover, .dd-menu-header:hover > a {
     color:white;    
