@@ -1,7 +1,5 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint
-from time import time
-import re
 from users.models import User, Role
 from users.utils import printException, cleanRecordID, looksLikeEmailAddress
 from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
@@ -11,7 +9,7 @@ mod = Blueprint('user',__name__, template_folder='templates', url_prefix='/user'
 
 
 def setExits():
-    g.listURL = url_for('.home')
+    g.listURL = url_for('.display')
     g.adminURL = url_for('.admin',id=0)
     g.editURL = url_for('.edit')
     g.deleteURL = url_for('.delete')
@@ -23,13 +21,20 @@ def home():
     setExits()
     return render_template('user/user_index.html')
     
+@mod.route('/list/', methods=['GET'])
+@table_access_required(User)
+def display():
+    setExits()
+    recs = User(g.db).select()
+    return render_template('user/user_list.html', recs=recs)
+    
 @mod.route('/edit/<int:id>/', methods=['POST','GET'])
 @table_access_required(User)
 def admin(id=None):
     """Administrator access for the User table records
     """
     setExits()
-    if not id:
+    if id == None:
         flash("No User identifier supplied")
         return redirect(g.listURL)
         
@@ -49,47 +54,48 @@ def admin(id=None):
 @mod.route('/edit', methods=['POST', 'GET'])
 @mod.route('/edit/', methods=['POST', 'GET'])
 @login_required
-def edit(user_handle=None):
+def edit(rec_handle=None):
     setExits()
+    #import pdb;pdb.set_trace()
 
     user = User(g.db)
     rec = None
     
     #import pdb;pdb.set_trace()
     
-    if user_handle == 0:
+    if rec_handle == 0:
         #new recod
         #update the form submission url to go to the admin method
-        g.editURL = g.editURL + '{}/'.format(user_handle)
-    elif user_handle:
-        user_handle = cleanRecordID(user_handle)
-        if user_handle < 0:
+        g.editURL = g.editURL + '{}/'.format(rec_handle)
+    elif rec_handle:
+        rec_handle = cleanRecordID(rec_handle)
+        if rec_handle < 0:
             flash("That is not a valid ID")
             return redirect(g.listURL)
     elif g.user != None:
-        user_handle = g.user
+        rec_handle = g.user
     else:
         flash("You do not have access to that function")
         return redirect(g.homeURL)
         
     if not request.form:
         """ if no form object, send the form page """
-        if not user_handle:
+        if rec_handle == None or not g.admin.has_access(g.user,User):
             # This should never happen
             flash("You do not have access to that area")
             return redirect(g.homeURL)
-        elif user_handle == 0:
+        elif rec_handle == 0:
             rec = user.new()
         else:
-            rec = user.get(user_handle)
+            rec = user.get(rec_handle)
             if not rec:
                 flash("Unable to locate user record")
                 return redirect(url_for('home'))
     else:
         #have the request form
         #import pdb;pdb.set_trace()
-        if user_handle and request.form['id'] != 'None':
-            rec = user.get(user_handle)
+        if rec_handle and request.form['id'] != 'None':
+            rec = user.get(rec_handle)
         else:
             # its a new unsaved record
             rec = user.new()
@@ -173,30 +179,28 @@ def register():
 
 @mod.route('/delete', methods=['GET'])
 @mod.route('/delete/', methods=['GET'])
-@mod.route('/delete/<id>/', methods=['GET'])
+@mod.route('/delete/<int:rec_id>/', methods=['GET'])
 @table_access_required(User)
-def delete(int:id=0):
-    return "Delete not implemented yet"
-#    setExits()
-#    id = cleanRecordID(id)
-#    if id < 0:
-#        flash("That is not a valid ID")
-#        return redirect(g.listURL)
-#    
-#    if id > 0:
-#        rec = user.get(id)
-#        if rec:
-#            try:
-#                db.delete(rec)
-#                db.commit()
-#            except Exception as e:
-#                flash(printException('Error attempting to delete '+g.title+' record.',"error",e))
-#        else:
-#            flash("Record could not be deleted.")
-#            
-#    return redirect(g.listURL)
-#    
-#
+def delete(rec_id=None):
+    setExits()
+    if rec_id == None:
+        rec_id = request.form.get('id',request.args.get('id',-1))
+    
+    rec_id = cleanRecordID(rec_id)
+    if rec_id <=0:
+        flash("That is not a valid record ID")
+        return redirect(g.listURL)
+        
+    rec = User(g.db).get(rec_id,include_inactive=True)
+    if not rec:
+        flash("Record not found")
+    else:
+        User(g.db).delete(rec.id)
+        g.db.commit()
+        
+    return redirect(g.listURL)
+
+
 def validForm(rec):
     # Validate the form
     goodForm = True

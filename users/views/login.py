@@ -19,7 +19,7 @@ def login():
     next = request.args.get('next',request.form.get('next',''))
     
     if g.user is not None:
-        flash("Already Logged in...")
+        #flash("Already Logged in...")
         return redirect(url_for("home"))
         
     if not request.form:

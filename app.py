@@ -42,8 +42,8 @@ def _before():
         
     if 'admin' not in g:
         g.admin = Admin(g.db)
-        g.admin.register(User,url_for('user.home'),display_name='Users',minimum_rank_required=500,roles=['admin',])
-        g.admin.register(Role,url_for('user.home'),display_name='User Permissions',minimum_rank_required=1000)
+        g.admin.register(User,url_for('user.display'),display_name='Users',minimum_rank_required=500,roles=['admin',])
+        g.admin.register(Role,url_for('role.display'),display_name='Roles',minimum_rank_required=1000)
 
 
 @app.teardown_request
@@ -52,15 +52,14 @@ def _teardown(exception):
         g.db.close()
 
 
-from users.views import user
 @app.route('/')
 def home():
     return render_template('index.html')
-    return user.test()
 
-from users.views import user, login
+from users.views import user, login, role
 app.register_blueprint(user.mod)
 app.register_blueprint(login.mod)
+app.register_blueprint(role.mod)
 
 if __name__ == '__main__':
     with app.app_context():

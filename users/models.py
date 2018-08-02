@@ -7,7 +7,7 @@ class Role(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'role'
-        self.order_by_col = 'name'
+        self.order_by_col = 'lower(name)'
         self.defaults = {'rank':0,}
         
     def create_table(self):
