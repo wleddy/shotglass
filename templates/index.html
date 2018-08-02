@@ -7,23 +7,6 @@
 <h2>Hello World</h2>
 <h3>Log in to see more...</h3>
 {% endif %}
-<ul class="list-menu">
-    {% if g.user %}
-    <li><a href="{{ url_for('user.home')}}" >Manage Your User Profile</li>
-    <li><a href="{{ url_for('login.logout')}}">Logout</a></li>
-        {% if g.admin and g.admin.has_access(g.user)%}
-        <h3>Admin List</h3>
-        <ul class="list-menu">
-            {% for item in g.admin.permissions %}
-            {% if g.admin.has_access(g.user,item['table'])%}
-            <li><a href="{{item['url']}}">{{item['display_name']}}</a></li>
-            {% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
-    {% else %}
-    <li><a href="{{ url_for('login.login')}}" >Login</li>
-    {% endif %}
-</ul>
+
 
 {% endblock body %}

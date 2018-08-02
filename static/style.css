@@ -115,6 +115,13 @@ img
 .clear, .clearer {
     clear:both;
 }
+p.clear, p.clearer {
+    line-height:1;
+    font-size:1pt;
+    margin:0;
+    padding:0;
+}
+
 .form_button_row {
     margin-bottom:0.5em;
     padding-bottom:.25em;
@@ -151,45 +158,6 @@ img
 #contain {
     margin:2em 4em;
 }
-div.authbar {
-    padding: 0.25em 0;
-    margin: 10px 0;
-    line-height: 1;
-    border: 1pt solid #666;
-    border-left:none;
-    border-right:none;
-    margin-left:9em;
-}
-div.authbar p {
-    margin:.25em;
-    padding-left:.5em;
-}
-
-div.signinprogress {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    height: 128px;
-    width: 128px;
-
-    -webkit-mask-image: url(/static/bikeSpinner.png);
-    background-color:#3d1; /* this sets the color of the spinner */
-    background-opacity:.5;
-    -webkit-animation-name: spinnerRotate;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-timing-function: linear;  
-}
-
-@-webkit-keyframes spinnerRotate {
-        from {
-                -webkit-transform:rotate(0deg);
-        }
-        to {
-                -webkit-transform:rotate(360deg);
-        }
-}
-
 
 a#header_home, a:hover#header_home, a:visited#header_home {
     text-decoration:none;
@@ -218,176 +186,90 @@ p.flash {
 .alert {
     color:#3333ff;
 }
-#super_menu {
-    width:20%;
-    float:left;
-    height:10em;
-}
-.admin_menu li{
-    list-style:none;
-}
-.admin_menu h5 {
-    margin-bottom:.5em;
-    margin-top:0;
-}
-
-p#addRecord {
-    padding-top:.5em;
-}
-
-div#eventRecordForm {
-    width:17em;
-    float:left;
-    padding-right:1em;
-}
-
-/*
-    countEvent Traveler List
-*/
-div#travelerListContain {
-    margin-left:20em;
-    
-}
-div#travelerList {
-    border:1pt solid black;
-    overflow-y:scroll;
-    width:340pt;
-    height:250pt;
-    margin-bottom:.5em;
-    font-size:90%;
-}
-div.eventTraveler {
-    padding:6px;
-}
-div.eventTravelereDetails p  {
-    margin: 0 3pt 0 63px;
-}
-p.eventTravelerIcon {
-    float:left;
-    width:57px;
-}
-
-p.eventTravlerActions {
-    clear:both;
-    text-align:right;
-    width:90%;
-    padding-top:.25em;
-}
-.eventTravelerActionSpacer {
-    padding-left:2em;
-}
-/*
-    countEvent Assignment List
-*/
-div#assignment-contain {
-    margin-top:1em;
-    padding-top:.1em;
-}
-div#assignmentList {
-    border:1pt solid black;
-    overflow-y:scroll;
-    width:42em;
-    min-height:20em;
-    clear:both;
-    padding: 1em;
-}
-
-p.assignmentActions{
-    text-align:right;
-    width:100%;
-    border-bottom:1pt #666 solid;
-}
-.assignmentActionSpacer {
-    padding-left:2em;
-}
-
-form#assignment-edit-trips-form {
-    max-height:400px;
-    overflow:auto;
-}
-table.assignment-edit-trips {
-    border:0;
-}
-.assignment-edit-trips th {
-    font-weight:bold;
-}
-.assignment-edit-trips-data input {
-    width:20px;
-    text-align:right;
-    font-weight:normal;
-}
-td.assignment-edit-trips-timeFrame-cell, th.assignment-edit-trips-timeFrame-cell {
-    text-align:center;
-    font-size:.2em;
-    border:0pt;
-    padding:0;
-    width:6em;
-}
-
-img.travelerIcon {
-    height:57px;
-    width:57px;
-    background-image:url(/static/count/images/unknown.png);
-}
-
-table.edit-form-table, table.edit-form-table th, 
-table.edit-form-table td, table.edit-form-table tr{
-    border-width:0px;
-    border-collapse:collapse;
-}
-table.edit-form-table th {
-    text-align:right;
-}
-table.edit-form-table td {
-    text-align:left;
-}
-
-#location-list {
-    width:200px;
-    padding:10px;
-    margin:10px auto;
-}
-.location-item-disable {
-    color:#666;
-}
-.location-item {
-    width:100%;
-    font-weight:bold;
-}
-
-.leaflet-control-attribution, .leaflet-control-attribution a {
-    /* let leaflet styling shine through */
-    font-size:inherit;
-    cursor:inherit;
-}
-
-/* the generic list and map search form */
-div#searchControls, div#mapExport, div#mapExport {
-    margin:10pt 0;
-}
-div#tripExport {display:none;}
-
-table.searchForm {
-    background-color:#eee;
-    border-collapse:collapse;
-    border: #aaa solid 1pt;
-}
-
-.searchForm th, .searchForm td, .searchForm th, .searchForm td {
-    border:none;
-    font-size:10pt;
-    padding:2px 2px 2px 2px;
-}
-.searchForm th, .searchForm th {
-    vertical-align:top;
-    text-align:right;
-    padding:2px 2px 2px 8px;
-}
-
-#exportTable.searhcForm th, #exportTable.searhcForm td{
-    padding: 8px 2px 0px 2px;
-}
 
 .disabled {
     color:#999;
 }
+
+/* navigation styles */
+#nav {
+    width:100%;
+    background-color:#eee;
+    margin:6pt 0;
+    border-top:.5pt solid lightgray;
+    border-bottom:.5pt solid lightgray;
+}
+#profile-menu {
+    float:right;
+}
+/* Dropdown menus */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    background-color:#eee;
+    background-image:url('/static/images/profile_image.png');
+    background-image-size:20pt 20pt;
+    background-repeat:no-repeat;
+    min-width:120pt;
+}
+.dropdown p {
+    padding: 8px 6px 6pt 30pt;
+    margin:0;
+}
+.dropdown:hover {
+    background-color:#888;
+}
+.dd-menu-header a {
+    text-decoration:none;
+    color:black;
+}
+.dropdown:hover p.dd-menu-header{
+    color:white;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding:0;
+    margin:0;
+    z-index: 1;
+    min-width:120pt;
+    
+}
+.dropdown-content ul {
+    margin:0;
+    -webkit-padding-start:0px;
+}
+.dropdown-content ul li {
+    list-style:none;
+    padding:4pt 4pt 4pt 18pt;
+}
+.dropdown-content ul li a  {
+    color:black;
+    text-decoration:none;
+}
+.dropdown-content ul li a:hover {
+    color:white;
+}
+.dropdown-content ul li:hover, .dropdown-content ul li:hover > a {
+    background-color:#bbb;
+    color:white;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+p.dd-menu-divider {
+    color:#777;
+    margin:0;
+    padding:6pt 2pt 2pt 10pt;
+    font-weight:800;
+    background-color:lightgrey;
+    border-top:.5pt solid lightgrey;
+    border-bottom:.5pt solid lightgrey;
+}
+
+/* end Dropdown menus */
+
+/* End Navigation styles */
