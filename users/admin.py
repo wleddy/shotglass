@@ -91,7 +91,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
     
-def table_access_required(table=None):
+def table_access_required(table):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
