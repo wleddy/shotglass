@@ -13,10 +13,11 @@ def setExits():
     g.adminURL = url_for('.admin',id=0)
     g.editURL = url_for('.edit')
     g.deleteURL = url_for('.delete')
-    g.homeURL = url_for('home')
+    g.homeURL = url_for('.home')
     g.title = 'User'
 
 @mod.route('/')
+@login_required
 def home():
     setExits()
     return render_template('user/user_index.html')
@@ -60,20 +61,28 @@ def edit(rec_handle=None):
 
     user = User(g.db)
     rec = None
+    request_rec_id = cleanRecordID(request.form.get('id',request.args.get('id',-1)))
+    is_admin = g.admin.has_access(g.user,User)
+    no_delete = not is_admin
+    user_roles = []
+    roles = Role(g.db).select()
     
-    #import pdb;pdb.set_trace()
-    
-    if rec_handle == None and g.user != None:
+    if not is_admin:
+        g.listURL = g.homeURL # Non admins can't see the list
+        
+    if rec_handle != None:
+        pass #rec_handle has to come from admin() at this point
+    elif rec_handle == None and g.user != None and request_rec_id == -1:
         rec_handle = g.user
-    elif rec_handle == None:
-        rec_handle = cleanRecordID(request.form.get('id',request.args.get('id',-1)))
+    else:
+        rec_handle = request_rec_id
         if rec_handle < 0:
             flash("That is not a valid ID")
             return redirect(g.listURL)
         
     if not request.form:
         """ if no form object, send the form page """
-        if rec_handle != g.user and not g.admin.has_access(g.user,User):
+        if rec_handle != g.user and not is_admin:
             flash("You do not have access to that area")
             return redirect(g.homeURL)
         elif rec_handle == 0:
@@ -83,11 +92,15 @@ def edit(rec_handle=None):
             if not rec:
                 flash("Unable to locate user record")
                 return redirect(url_for('home'))
+                
+        user_roles = get_user_role_names(rec)
+        
     else:
         #have the request form
         #import pdb;pdb.set_trace()
         if rec_handle and request.form['id'] != 'None':
             rec = user.get(rec_handle)
+            user_roles = get_user_role_names(rec)
         else:
             # its a new unsaved record
             rec = user.new()
@@ -138,15 +151,20 @@ def edit(rec_handle=None):
     
             try:
                 user.save(rec)
-                g.db.commit()
                 
-                if 'user_edit_token' in session:
-                    del session['user_edit_token']
+                # update the user roles
+                if 'roles_select' in request.form:
+                    #delete all the users current roles
+                    user.clear_roles(rec.id)
+                    for role_id in request.form.getlist('roles_select'):
+                        user.add_role(rec.id,role_id)
                     
                 # if the username or email address are the same as g.user
                 # update g.user if it changes
                 if(editingCurrentUser != ''):
-                    setUserStatus(editingCurrentUser,rec.id)                
+                    setUserStatus(editingCurrentUser,rec.id)
+                    
+                g.db.commit()
                 
             except Exception as e:
                 g.db.rollback()
@@ -162,7 +180,7 @@ def edit(rec_handle=None):
                 rec.username = request.form['new_username'] #preserve user input
 
     # display form
-    return render_template('user/user_edit.html', rec=rec)
+    return render_template('user/user_edit.html', rec=rec, no_delete=no_delete, is_admin=is_admin, user_roles=user_roles, roles=roles)
     
 @mod.route('/register/', methods=['GET'])
 def register():
@@ -237,4 +255,11 @@ def validForm(rec):
         
     return goodForm
     
-
+def get_user_role_names(rec):
+    user_roles = []
+    roles = User(g.db).get_roles(rec.id)
+    if roles:
+        for x in roles:
+            user_roles.append(x.name)
+            
+    return user_roles

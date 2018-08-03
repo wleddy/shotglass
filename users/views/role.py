@@ -62,10 +62,12 @@ def edit(rec_id=None):
             rec = role.new()
             role.update(rec,request.form)
 
-        if validForm():
+        if validForm(rec):
             #update the record
             role.update(rec,request.form)
-            #pdb.set_trace()
+            # make names lower case
+            rec.name=request.form['name'].lower().strip()
+                        
             try:
                 role.save(rec)
                 g.db.commit()
@@ -106,13 +108,23 @@ def delete(rec_id=None):
     return redirect(g.listURL)
 
     
-def validForm():
+def validForm(rec):
     # Validate the form
     goodForm = True
     
     if request.form['name'].strip() == '':
         goodForm = False
         flash('Name may not be blank')
+    else:
+        # name must be unique (but not case sensitive)
+        where = 'lower(name)="{}"'.format(request.form['name'].lower().strip(),)
+        if rec.id:
+            where += ' and id <> {}'.format(rec.id)
+        if Role(g.db).select(
+            where=where
+            ) != None:
+            goodForm = False
+            flash('Role names must be unique')
         
     # Rank must be in a reasonalble range
     temp_rank = cleanRecordID(request.form['rank'])

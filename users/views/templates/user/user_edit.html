@@ -4,42 +4,40 @@
 	<h2>Edit {{ g.title }}</h2>	
     <form action="{{ g.editURL }}" method=post class="entry">
 		{% include "editFormButtons.html" %}
-		<input type=hidden name="id" value="{{rec.id}}">
-      <dl>
-		<dt>Name:
-        <dd><input type=text size=30 name="first_name" value="{{rec.first_name|default('',true)}}"/>
-            <input type=text size=30 name="last_name" value="{{rec.last_name|default('',true)}}"/>
-        <dt>Email:
-        <dd><input type=text size=30 name="email" value="{{rec.email|default('',true)}}"/>
-        <dt>User Name:
-        <dd><input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}" 
-            {% if not config.ALLOW_USERNAME_CHANGE %}disabled="disabled"{% endif %} />
-        <dt>Password {% if rec.password and rec.password != '' %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}:
-        <dd><input type=password size=30 name="new_password" value=""/>
-        <dt>Re-type password:
-        <dd><input type=password size=30 name="confirm_password" value=""/>
-        <dt>Address:
-        <dd><input type=text size=47 name="address" value="{{rec.address|default('',true)}}"/>
-        <dd><input type=text size=47 name="address2" value="{{rec.address2|default('',true)}}"/>
-        <dd>
-            <input type=text size=20 name="city" value="{{rec.city|default('',true)}}"/>
-            <input type=text size=3 name="state" value="{{rec.state|default('',true)}}"/>
-            <input type=text size=11 name="zip" value="{{rec.zip|default('',true)}}"/>
-        <dt>Phone:
-        <dd><input type=text size=30 name="phone" value="{{rec.phone|default('',true)}}"/>
-
-		{% if g.user_rank and g.user_rank > 1 %}
-        <dt>Role:</dt>
-		<dd><select name="role">
-            {% for role in roles %}
-            {% if g.user_rank >= role.rank %}
-			    <option value="{{role.id}}" {% if role.name in user_roles %}selected="selected" {% endif %}>role.name</option>
+        <fieldset>
+            <input type=hidden name="id" value="{{rec.id}}">
+            <p><span>Name: </span><input type=text size=30 name="first_name" required value="{{rec.first_name|default('',true)}}"/>
+                <input type=text size=30 name="last_name" required value="{{rec.last_name|default('',true)}}"/>
+            </p>
+            <p><span>Email: </span><input type=text size=30 name="email" required value="{{rec.email|default('',true)}}"/></p>
+            <p><span>User Name: </span>
+                <input type=text size=30 name="new_username" value="{{rec.username|default('',true)}}" 
+                {% if not config.ALLOW_USERNAME_CHANGE %}disabled="disabled"{% endif %} />
+            </p>
+            <p><span>Password: {% if rec.password and rec.password != '' %}(leave blank to keep current){% else %}(&mdash; Optional &mdash;){% endif %}: </span>
+                <input type=password size=30 name="new_password" value=""/>
+            </p>
+            <p><span>Re-enter password: </span><input type=password size=30 name="confirm_password" value=""/></p>
+            <p><span>Address: </span><input type=text size=47 name="address" value="{{rec.address|default('',true)}}"/>
+                <br/><input type=text size=47 name="address2" value="{{rec.address2|default('',true)}}"/>
+                </p>
+            <p><span>City, State Zip</span>
+                <input type=text size=20 name="city" value="{{rec.city|default('',true)}}"/>,
+                <input type=text size=3 name="state" value="{{rec.state|default('',true)}}"/>
+                <input type=text size=11 name="zip" value="{{rec.zip|default('',true)}}"/>
+            </p>
+            <p><span>Phone: </span><input type=text size=30 name="phone" value="{{rec.phone|default('',true)}}"/></p>
+            {% if is_admin %}
+                <p><span>Roles: </span>
+                <select name="roles_select" multiple size="5">
+                    {% for role in roles %}
+                        <option value="{{role.id}}" {% if role.name in user_roles %}selected="selected" {% endif %}>{{role.name}}</option>
+                    {% endfor %}
+                </select>
+                </p>
+                <p><span>Active: </span><input type=checkbox  name="active" value="1" {% if rec.active %} checked="checked" {% endif %}/></p>
+                <p><span>Last Access: </span> {{rec.last_access|default('Never',true)}} (UTC)</p>
             {% endif %}
-            {% endfor %}
-		</select></dd>
-        {% endif %}
-        <dt>Active:<input type=checkbox  name="active" value="1" {% if rec.active %} checked="checked" {% endif %}/>
-      </dl>
-        <p><strong>Last Access:</strong> {{rec.last_access|default('Never',true)}} (UTC)</p>
+        </fieldset>
     </form>
 {% endblock %}

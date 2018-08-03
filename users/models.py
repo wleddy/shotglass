@@ -68,6 +68,9 @@ class User(SqliteTable):
         
         return 'and active = 1'
         
+    def add_role(self,user_id,role_id):
+        self.db.execute('insert into user_role (user_id,role_id) values (?,?)',(cleanRecordID(user_id),cleanRecordID(role_id),))
+        
     def delete(self,rec_id):
         """Delete a single user record as indicated
         'id' may be an integer or a string"""
@@ -125,6 +128,10 @@ class User(SqliteTable):
             self.db.execute('update user set last_access = datetime() where id = ?',(user_id,))
             if not no_commit:
                 self.db.commit()
+                
+    def clear_roles(self,user_id):
+        """Delete all user_role records from this user"""
+        self.db.execute('delete from user_role where user_id = ?',(cleanRecordID(user_id),))
         
     def create_table(self):
         """Define and create the user tablel"""

@@ -71,12 +71,29 @@ code {
     font-size:.8em;
     line-height:.8;
 }
+form p {
+    line-height:1;
+    margin:0 0 8pt 0;
+    padding:0;
+}
 
-input, textarea {
+form fieldset p span{
+    display:block;
+    font-size:90%;
+    font-weight:800;
+}
+
+input, textarea, select {
     padding:3pt;
     font-size:1em;
     font-family:helvetica,arial,sans-serif;
     background-color:white;
+}
+select {
+    min-width:120pt;
+}
+input[required]{
+    border-color:red;
 }
 button, input[type=submit]{
     padding:5px 12px; 
@@ -90,7 +107,6 @@ button:hover, input[type=submit]:hover {
     border-color:#aac;
     color:#eee;
 }
-input.num {text-align:right;}
 
 
 table, th, td, tr {
