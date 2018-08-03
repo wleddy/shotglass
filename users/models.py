@@ -57,7 +57,7 @@ class User(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'user'
-        self.order_by = 'id'
+        self.order_by_col = 'last_name, first_name'
         self.defaults = {'active':1,}
         
     def _active_only_clause(self,include_inactive=False,**kwargs):
