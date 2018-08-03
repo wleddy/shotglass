@@ -63,25 +63,17 @@ def edit(rec_handle=None):
     
     #import pdb;pdb.set_trace()
     
-    if rec_handle == 0:
-        #new recod
-        #update the form submission url to go to the admin method
-        g.editURL = g.editURL + '{}/'.format(rec_handle)
-    elif rec_handle:
-        rec_handle = cleanRecordID(rec_handle)
+    if rec_handle == None and g.user != None:
+        rec_handle = g.user
+    elif rec_handle == None:
+        rec_handle = cleanRecordID(request.form.get('id',request.args.get('id',-1)))
         if rec_handle < 0:
             flash("That is not a valid ID")
             return redirect(g.listURL)
-    elif g.user != None:
-        rec_handle = g.user
-    else:
-        flash("You do not have access to that function")
-        return redirect(g.homeURL)
         
     if not request.form:
         """ if no form object, send the form page """
-        if rec_handle == None or not g.admin.has_access(g.user,User):
-            # This should never happen
+        if rec_handle != g.user and not g.admin.has_access(g.user,User):
             flash("You do not have access to that area")
             return redirect(g.homeURL)
         elif rec_handle == 0:
