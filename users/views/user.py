@@ -5,7 +5,7 @@ from users.utils import printException, cleanRecordID, looksLikeEmailAddress
 from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
 from users.admin import login_required, table_access_required
 
-mod = Blueprint('user',__name__, template_folder='templates', url_prefix='/user')
+mod = Blueprint('user',__name__, template_folder='../templates', url_prefix='/user')
 
 
 def setExits():

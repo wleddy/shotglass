@@ -5,7 +5,7 @@ from time import sleep
 from users.models import User
 from users.views.password import getPasswordHash, matchPasswordToHash
 
-mod = Blueprint('login',__name__, template_folder='templates')
+mod = Blueprint('login',__name__, template_folder='../templates')
 
 
 def setExits():

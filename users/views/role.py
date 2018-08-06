@@ -4,7 +4,7 @@ from users.models import Role
 from users.utils import printException, cleanRecordID
 from users.admin import login_required, table_access_required
 
-mod = Blueprint('role',__name__, template_folder='templates', url_prefix='/role')
+mod = Blueprint('role',__name__, template_folder='../templates', url_prefix='/role')
 
 
 def setExits():
