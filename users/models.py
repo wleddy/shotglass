@@ -150,8 +150,8 @@ class User(SqliteTable):
             'password' TEXT,
             'active' INTEGER DEFAULT 1,
             'last_access' DATETIME,
-            'temp_password' TEXT,
-            'temp_password_expires' INT
+            'access_token' TEXT,
+            'access_token_expires' INT
             """
         super().create_table(sql)
         

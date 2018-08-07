@@ -1,9 +1,10 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint
 from users.models import User, Role
-from users.utils import printException, cleanRecordID, looksLikeEmailAddress
+from users.utils import printException, cleanRecordID, looksLikeEmailAddress, get_access_token
 from users.views.login import matchPasswordToHash, setUserStatus, getPasswordHash
 from users.admin import login_required, table_access_required
+from time import time
 
 mod = Blueprint('user',__name__, template_folder='../templates', url_prefix='/user')
 
@@ -12,6 +13,7 @@ def setExits():
     g.listURL = url_for('.display')
     g.adminURL = url_for('.admin',id=0)
     g.editURL = url_for('.edit')
+    g.registerURL = url_for('.register')
     g.deleteURL = url_for('.delete')
     g.homeURL = url_for('.home')
     g.title = 'User'
@@ -26,7 +28,9 @@ def home():
 @table_access_required(User)
 def display():
     setExits()
-    recs = User(g.db).select()
+    include_inactive = True
+    
+    recs = User(g.db).select(include_inactive=include_inactive)
     return render_template('user/user_list.html', recs=recs)
     
 @mod.route('/edit/<int:id>/', methods=['POST','GET'])
@@ -66,9 +70,11 @@ def edit(rec_handle=None):
     no_delete = not is_admin
     user_roles = []
     roles = Role(g.db).select()
+    include_inactive = True
     
     if not is_admin:
         g.listURL = g.homeURL # Non admins can't see the list
+        include_inactive = False
         
     if rec_handle != None:
         pass #rec_handle has to come from admin() at this point
@@ -88,7 +94,7 @@ def edit(rec_handle=None):
         elif rec_handle == 0:
             rec = user.new()
         else:
-            rec = user.get(rec_handle)
+            rec = user.get(rec_handle,include_inactive=include_inactive)
             if not rec:
                 flash("Unable to locate user record")
                 return redirect(url_for('home'))
@@ -100,7 +106,7 @@ def edit(rec_handle=None):
         #import pdb;pdb.set_trace()
         is_new_user = False
         if rec_handle and request.form['id'] != 'None':
-            rec = user.get(rec_handle)
+            rec = user.get(rec_handle,include_inactive=include_inactive)
             user_roles = get_user_role_names(rec)
         else:
             # its a new unsaved record
@@ -121,13 +127,11 @@ def edit(rec_handle=None):
                 if(g.user == rec.email):
                     editingCurrentUser = request.form['email'].strip()
             
-            #import pdb;pdb.set_trace()
             #update the record
             user.update(rec,request.form)
-            #pdb.set_trace()
             
             #ensure a value for the check box
-            rec.active = int(request.form.get('active','0'))
+            rec.active = int(request.form.get('active',rec.active))
             
             user_name = ''
             if 'new_username' in request.form:
@@ -138,20 +142,7 @@ def edit(rec_handle=None):
                 else:
                     rec.username = None
         
-            if rec.password != None and request.form['new_password'].strip() == '':
-                # Don't change the password
-                pass
-            else:
-                user_password = ''
-                if request.form['new_password'].strip() != '':
-                    user_password = getPasswordHash(request.form['new_password'].strip())
-                    rec.temp_password = None
-                    rec.temp_password_expires = None
-
-                if user_password != '':
-                    rec.password = user_password
-                else:
-                    rec.password = None
+            set_password_from_form(rec)
     
             try:
                 user.save(rec)
@@ -205,11 +196,120 @@ def edit(rec_handle=None):
     # display form
     return render_template('user/user_edit.html', rec=rec, no_delete=no_delete, is_admin=is_admin, user_roles=user_roles, roles=roles)
     
-@mod.route('/register/', methods=['GET'])
+@mod.route('/register/', methods=['GET','POST'])
 def register():
+    """Allow people to sign up thier own accounts on the web site"""
     setExits()
-    return "Registration not done yet..."
+    g.title = "Account Registration"
+    g.editURL = url_for('.register')
+    g.listURL = url_for('home') # incase user cancels
+    user = User(g.db)
+    rec=user.new()
+    
+    from users.mailer import send_message
+    from app import app
+    
+    is_admin = False
+    user_roles=None
+    roles=None
+    no_delete=True
+    success=True
+    help = """
+    <p>Please complete this form to creeate your account. Fields marked with an asterisk (*) are required.</p>
+    <p>You may omit the password if you like, but if you do you will not be able to edit your account informaion in the future</p>"""
+        
+    if 'confirm' in request.args:
+        #Try to find the user record that requested a reset
+        rec=user.select_one(where='access_token = "{}"'.format(request.args.get('confirm','')).strip())
+        if rec and rec.access_token_expires > time():
+            if rec.active == 1:
+                success="active"
+            else:
+                success="waiting"
+                
+            #inform the admin
+            to=[(app.config['MAIL_DEFAULT_SENDER'],app.config['MAIL_DEFAULT_ADDR'])]
+            confirmURL = "{}://{}{}?activate={}".format(app.config['HOST_PROTOCOL'],app.config['HOST_NAME'],url_for('.activate'), rec.access_token)
+            context={'rec':rec,'confirmURL':confirmURL}
+            subject = 'Activate Account Request from - {}'.format(app.config['SITE_NAME'])
+            html_template = 'user/email/admin_activate_acct.html'
+            text_template = None
+            send_message(to,context=context,subject=subject,html_template=html_template,text_template=text_template)
+            
+            return render_template('user/registration_success.html',success=success)
+        else:
+            flash("That reset request has expired")
+            return redirect(url_for('home'))
 
+    if not request.form:
+        pass
+    else:
+        if validForm(rec):
+            #update the record
+            user.update(rec,request.form)
+            rec.active = 0 # Self registered accounts are inactive by default
+            set_password_from_form(rec)
+            rec.access_token = get_access_token()
+            rec.access_token_expires = time() + (3600 * 48)
+            
+            try:
+                user.save(rec)
+                g.db.commit()
+                
+                #Send confirmation email to user
+                full_name = '{} {}'.format(rec.first_name,rec.last_name).strip()
+                to=[(full_name,rec.email)]
+                context={'rec':rec,'confirmation_code':rec.access_token}
+                subject = 'Signup Success'
+                html_template = 'user/email/registration_confirm.html'
+                text_template = 'user/email/registration_confirm.txt'
+                send_message(to,context=context,subject=subject,html_template=html_template,text_template=text_template)
+                
+            except Exception as e:
+                g.db.rollback()
+                mes = "An error occured while new user was attempting to register"
+                printException(mes,"error",e)
+                # Send email to the administrator
+                to=[(app.config['MAIL_DEFAULT_SENDER'],app.config['MAIL_DEFAULT_ADDR'])]
+                context={'mes':mes,'rec':rec,'e':str(e)}
+                body = "Signup Error\n{{context.mes}}\n{{context.e}}\nrec:\n{{context.rec}}"
+                send_message(to,context=context,body=body,subject=mes)
+                success = False
+            
+            return render_template('user/registration_success.html',success=success)
+        else:
+            #validation failed
+            user.update(rec,request.form)
+            
+    return render_template('user/user_edit.html', rec=rec, no_delete=no_delete, is_admin=is_admin, user_roles=user_roles, roles=roles, help=help)
+
+
+@mod.route('/activate/', methods=['GET'])
+@table_access_required(User)
+def activate():
+    """Allow administrator to activate a new user"""
+    activate = request.args.get('activate',None)
+    if activate:
+        user = User(g.db)
+        rec=user.select_one(where='access_token = "{}"'.format(activate.strip()))
+        if rec:
+            rec.active = 1
+            rec.access_token = None
+            rec.access_token_expires = None
+            user.save(rec)
+            g.db.commit()
+        else:
+            flash("User not found with access_token: {}".format(activate))
+            return redirect(url_for('home'))
+            
+    else:
+        flash("Activation code not in request args")
+        return redirect(url_for('home'))
+    
+    flash("New User Activation Successful")
+    return edit(rec.id)
+        
+        
 @mod.route('/delete', methods=['GET'])
 @mod.route('/delete/', methods=['GET'])
 @mod.route('/delete/<int:rec_id>/', methods=['GET'])
@@ -286,3 +386,20 @@ def get_user_role_names(rec):
             user_roles.append(x.name)
             
     return user_roles
+    
+def set_password_from_form(rec):
+    if not request.form['new_password'] or (rec.password != None and request.form['new_password'].strip() == ''):
+        # Don't change the password
+        pass
+    else:
+        user_password = ''
+        if request.form['new_password'].strip() != '':
+            user_password = getPasswordHash(request.form['new_password'].strip())
+            rec.access_token = None
+            rec.access_token_expires = None
+
+        if user_password != '':
+            rec.password = user_password
+        else:
+            rec.password = None
+    

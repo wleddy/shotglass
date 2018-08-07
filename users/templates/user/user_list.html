@@ -2,6 +2,7 @@
 {% block title %}{{ g.title }} List{% endblock %}
 {% block body %}
 	<h2>{{g.title}} List</h2>
+  	<p id="addRecord"><a href="{{ g.adminURL }}">Add a new {{ g.title }}</a></p>
 	{%if recs %}
 		<table class="datatable">
 		<tr>
@@ -22,5 +23,4 @@
   	{% else %}
     	<p><em>No {{ g.title }}s here so far</em></p>
 	{% endif %}
-  	<p id="addRecord"><a href="{{ g.adminURL }}">Add a new {{ g.title }}</a></p>
 {% endblock %}

@@ -4,7 +4,7 @@ from time import sleep, time
 import random
 from users.models import User
 from users.views.password import getPasswordHash, matchPasswordToHash
-from time import time
+from users.utils import get_access_token
 
 mod = Blueprint('login',__name__, template_folder='../templates')
 
@@ -14,7 +14,7 @@ def setExits():
     g.loginURL = url_for('.login')
     g.recoverURL = url_for('.recover_password')
     g.logoutURL = url_for('.logout')
-    g.registerURL = url_for('.register')
+    g.registerURL = url_for('user.register')
     
 @mod.route('/login', methods=['POST', 'GET'])
 @mod.route('/login/', methods=['POST', 'GET'])
@@ -29,8 +29,8 @@ def login():
         
     if 'reset' in request.args:
         #Try to find the user record that requested a reset
-        rec=User(g.db).select_one(where='temp_password = "{}"'.format(request.args.get('reset','')).strip())
-        if rec and rec.temp_password_expires > time():
+        rec=User(g.db).select_one(where='access_token = "{}"'.format(request.args.get('reset','')).strip())
+        if rec and rec.access_token_expires > time():
             userNameOrEmail=rec.username
             if not userNameOrEmail:
                 userNameOrEmail=rec.email
@@ -50,13 +50,12 @@ def login():
             #If not, there is no point in going on... Also, could be a bot.
             return render_template('login/no-cookies.html')
         
-        #print("db={}".format(db))
         rec = User(g.db).get(request.form["userNameOrEmail"],include_inactive=True)
-        #print(rec)
-        #next = 
+
         if rec and matchPasswordToHash(request.form["password"],rec.password):
             session['loginTries'] = 0
             if rec.active == 0:
+                #import pdb;pdb.set_trace()
                 flash("Your account is inactive")
                 return render_template('/login/inactive.html')
                 
@@ -108,17 +107,10 @@ def recover_password():
             flash("That email address could not be found in the list of users.")
         else:
             # generate a new password that is unique to the system
-            temp_rec = 'temp'
-            while temp_rec != None:
-                temp_pass = ""
-                for x in range(22):
-                    temp_pass += random.choice('abcdefghijklmnopqrstuvwxyz12344567890')
-                #test that temp_pass is unique. break when rec == None
-                temp_rec = User(g.db).select_one(where='temp_password = "{}"'.format(temp_pass))
-                    
+            temp_pass = get_access_token()
             # save the temporary password
-            rec.temp_password = temp_pass
-            rec.temp_password_expires = time() + (3600 * 48) # 2 days to reset
+            rec.access_token = temp_pass
+            rec.access_token_expires = time() + (3600 * 48) # 2 days to reset
             User(g.db).save(rec)
             g.db.commit()
             
@@ -138,12 +130,7 @@ def recover_password():
     # Return a page telling user what we did
     return render_template('login/recover_password.html',temp_pass=temp_pass,rec=rec)
     
-@mod.route('/signup', methods=['GET','POST'])
-def register():
-    """Allow user to signup for an account"""
-    
-    return "Not implemented yet"
-    
+        
 def setUserStatus(userNameOrEmail,user_id):
     #Log the user in
     user = User(g.db)

@@ -2,6 +2,9 @@
 {% block title %}Edit {{ g.title }}{% endblock %}
 {% block body %}
 	<h2>Edit {{ g.title }}</h2>	
+    {% if help %}
+        <div>{{ help|safe }}</div>
+    {% endif %}
     <form action="{{ g.editURL }}" method=post class="entry">
 		{% include "editFormButtons.html" %}
         <fieldset>
@@ -35,8 +38,13 @@
                     {% endfor %}
                 </select>
                 </p>
-                <p><span>Active: </span><input type=checkbox  name="active" value="1" {% if rec.active %} checked="checked" {% endif %}/></p>
-                <p><span>Last Access: </span> {{rec.last_access|default('Never',true)}} (UTC)</p>
+                <p style="float:left;width:50pt;"><span>Active: </span>
+                    <input type=radio  name="active" value="1" {% if rec.active ==1 %} checked="checked" {% endif %}/>
+                </p>
+                <p><span>Inactive: </span>
+                    <input type=radio  name="active" value="0" {% if rec.active== 0 %} checked="checked" {% endif %}/>
+                </p>
+                <p class="float:none;"><span>Last Access: </span> {{rec.last_access|default('Never',true)}} (UTC)</p>
             {% endif %}
         </fieldset>
     </form>

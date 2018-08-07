@@ -6,10 +6,12 @@ from users.utils import printException, cleanRecordID
 
 def send_message(to_address_list,**kwargs):
     """Send an email with the parameters as:
-        to_address_list=[list of tuples (recipient name,recipient address)]
+        to_address_list=[list of tuples (recipient name,recipient address)]=[]
         -- all templates must use 'context' as their only context variable
         **kwargs:
             context = {a dictionary like object with data for rendering all emails} = {}
+            body = <text for body of email> = None
+            body_text_is_html = <True | False> = False
             text_template=<template to render as plain text message> = None
             html_template=<template to render as html message> = None
             subject=<subject text (will be rendered with the current context>)>= a default subject
@@ -24,17 +26,19 @@ def send_message(to_address_list,**kwargs):
             message "some message"
     """
 
+    context = kwargs.get('context',{})
+    body = kwargs.get('body',None)
+    body_is_html = kwargs.get('body_is_html',None)
     text_template = kwargs.get('text_template',None)
     html_template = kwargs.get('html_template',None)
-    context = kwargs.get('context',{})
+    subject_prefix = kwargs.get('subject_prefix','')
     from_address = kwargs.get('from_address',app.config['MAIL_DEFAULT_ADDR'])
     from_sender = kwargs.get('from_address',app.config['MAIL_DEFAULT_SENDER'])
     reply_to = kwargs.get('reply_to',from_address)
     reply_to_name = kwargs.get('reply_to_name',from_sender)
-    subject_prefix = kwargs.get('subject_prefix','')
     subject = subject_prefix + ' ' +kwargs.get('subject','A message from {}'.format(from_sender))
     
-    if not text_template and not html_template:
+    if not text_template and not html_template and not body:
         mes = "No message body was specified"
         printException(mes,"error")
         return (False, mes)
@@ -52,6 +56,12 @@ def send_message(to_address_list,**kwargs):
                           sender=(from_sender, from_address),
                           recipients=[(name, address)])
         
+            #Get the text body verson
+            if body:
+                if body_is_html:
+                    msg.html = render_template_string(body, context=context)
+                else:
+                    msg.body = render_template_string(body, context=context)
             if html_template:
                 msg.html = render_template(html_template, context=context)
             if text_template:
@@ -64,7 +74,7 @@ def send_message(to_address_list,**kwargs):
                 printException(mes,"error",e)
                 return (False, mes)
 
-            if mail.suppress or app.config['TESTING']:
+            if mail.suppress:
                 mes = '{} email(s) would have been sent if we were not testing'.format(len(outbox),)
                 return (True, mes )
     
