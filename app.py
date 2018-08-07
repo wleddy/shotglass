@@ -66,5 +66,6 @@ if __name__ == '__main__':
         init_db(get_db())
         get_db().close()
         
+    #app.run(host='172.20.10.2', port=5000)
     app.run()
     

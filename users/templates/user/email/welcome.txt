@@ -1,7 +1,3 @@
-{{ _('Welcome %(email)s!', email=user.email) }}
+Welcome {{ context.full_name }}
 
-{% if security.confirmable %}
-{{ _('You can confirm your email through the link below:') }}
-
-{{ confirmation_link }}
-{% endif %}
+You have a new account at {{ context.site_name }}

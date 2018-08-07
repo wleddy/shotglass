@@ -98,11 +98,13 @@ def edit(rec_handle=None):
     else:
         #have the request form
         #import pdb;pdb.set_trace()
+        is_new_user = False
         if rec_handle and request.form['id'] != 'None':
             rec = user.get(rec_handle)
             user_roles = get_user_role_names(rec)
         else:
             # its a new unsaved record
+            is_new_user = True
             rec = user.new()
             user.update(rec,request.form)
 
@@ -169,7 +171,25 @@ def edit(rec_handle=None):
             except Exception as e:
                 g.db.rollback()
                 flash(printException('Error attempting to save '+g.title+' record.',"error",e))
-            
+                return redirect(g.listURL)
+                
+            if is_new_user == True and rec.email:
+                from app import app
+                from users.mailer import send_message
+                
+                # send an email to welcome the new user
+                full_name = '{} {}'.format(rec.first_name,rec.last_name).strip()
+                
+                context = {'rec':rec,'full_name':full_name,'site_name':app.config['SITE_NAME']}
+                sent,msg = send_message(
+                    context,
+                    to_address_list=[(full_name,rec.email)],
+                    html_template='user/email/welcome.html',
+                    text_template='user/email/welcome.txt',
+                    )
+                if not sent:
+                    flash('The welcome message could not be sent. Error: {}'.format(msg))
+                    
             return redirect(g.listURL)
         
         else:
