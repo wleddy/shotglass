@@ -39,12 +39,6 @@ db = None
 def delete_test_db():
         os.remove(filespec)
         
-def test_database():
-    from database import Database
-    db2 = Database(filespec)
-    assert type(db2) is Database
-    del db2
-
 def test_home(client):
     result = client.get('/')   
     assert result.status_code == 200

@@ -1,4 +1,4 @@
-from database import SqliteTable
+from users.database import SqliteTable
 from users.utils import cleanRecordID
 from users.views.password import getPasswordHash
         

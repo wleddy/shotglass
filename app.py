@@ -1,7 +1,7 @@
-from database import Database
 from flask import Flask, render_template, g, session, url_for
 from flask_mail import Mail
 
+from users.database import Database
 from users.models import User,Role,init_db
 from users.admin import Admin
 
