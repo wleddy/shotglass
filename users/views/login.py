@@ -126,9 +126,10 @@ def recover_password():
             from users.mailer import send_message
             full_name = rec.first_name + " " + rec.last_name
             context = {'temp_pass':temp_pass,'rec':rec,'full_name':full_name}
+            to_address_list=[(full_name,rec.email),]
             result,msg = send_message(
-                context,
-                to_address_list=[(full_name,rec.email)],
+                to_address_list,
+                context=context,
                 html_template='login/email/confirm_reset.html',
                 text_template='login/email/confirm_reset.txt',
                 subject = 'Confirm Password Reset'

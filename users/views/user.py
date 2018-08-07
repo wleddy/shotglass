@@ -182,9 +182,11 @@ def edit(rec_handle=None):
                 full_name = '{} {}'.format(rec.first_name,rec.last_name).strip()
                 
                 context = {'rec':rec,'full_name':full_name,}
+                to_address_list=[(full_name,rec.email)]
                 sent,msg = send_message(
-                    context,
-                    to_address_list=[(full_name,rec.email)],
+                    to_address_list,
+                    subject="Welcome to {{config.SITE_NAME}}",
+                    context=context,
                     html_template='user/email/welcome.html',
                     text_template='user/email/welcome.txt',
                     )
