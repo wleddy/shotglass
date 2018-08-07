@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, session, url_for
+from flask import Flask, render_template, g, session, url_for, request, redirect
 from flask_mail import Mail
 
 from users.database import Database
