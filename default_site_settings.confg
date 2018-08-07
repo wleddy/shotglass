@@ -11,6 +11,10 @@ SITE_NAME = "My New Web Site"
 DEBUG = True
 REQUIRE_SSL = (not DEBUG)
 
+HOST_PROTOCOL = "http"
+if REQUIRE_SSL:
+    HOST_PROTOCOL = "https"
+
 CGI_ROOT_FIX_APPLY = False # Some webservers mess up the root url
 CGI_ROOT_FIX_PATH = "/" #this is usually correct path
 
