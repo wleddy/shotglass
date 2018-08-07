@@ -1,3 +1,7 @@
 <p>Welcome {{ context.full_name }}</p>
 
 <p>You have a new account at {{ context.site_name }}</p>
+
+{% if context.rec.password %}
+<p><a href="https://{{config.HOST_NAME}}{{url_for('login.login')}}">You can log in to your account with this link.</a></p>
+{% endif %}
