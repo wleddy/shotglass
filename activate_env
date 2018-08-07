@@ -1,9 +1,10 @@
 #!/bin/bash
 
-echo 'activating env'
 
-if [ ! -f "instance/activate_env" ]
-    . instance/activate_env
+if [ -f "instance/activate_env" ] 
+then
+. instance/activate_env
 else
+echo 'activating env'
 . env/bin/activate
 fi
