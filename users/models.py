@@ -149,7 +149,9 @@ class User(SqliteTable):
             'username' TEXT UNIQUE,
             'password' TEXT,
             'active' INTEGER DEFAULT 1,
-            'last_access' DATETIME 
+            'last_access' DATETIME,
+            'temp_password' TEXT,
+            'temp_password_expires' INT
             """
         super().create_table(sql)
         

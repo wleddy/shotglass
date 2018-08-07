@@ -145,6 +145,8 @@ def edit(rec_handle=None):
                 user_password = ''
                 if request.form['new_password'].strip() != '':
                     user_password = getPasswordHash(request.form['new_password'].strip())
+                    rec.temp_password = None
+                    rec.temp_password_expires = None
 
                 if user_password != '':
                     rec.password = user_password
@@ -174,13 +176,12 @@ def edit(rec_handle=None):
                 return redirect(g.listURL)
                 
             if is_new_user == True and rec.email:
-                from app import app
                 from users.mailer import send_message
                 
                 # send an email to welcome the new user
                 full_name = '{} {}'.format(rec.first_name,rec.last_name).strip()
                 
-                context = {'rec':rec,'full_name':full_name,'site_name':app.config['SITE_NAME']}
+                context = {'rec':rec,'full_name':full_name,}
                 sent,msg = send_message(
                     context,
                     to_address_list=[(full_name,rec.email)],
