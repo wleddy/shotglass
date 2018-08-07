@@ -1,35 +1,35 @@
 #!/bin/bash
 
-ECHO ""
+echo ""
 
 if [ ! -d "env" ]
 then
-    ECHO 'making env'
+    echo 'making env'
 
     virtualenv --python=python3 env
 
     . env/bin/activate
 
-    ECHO 'installing requirements'
+    echo 'installing requirements'
     pip install -r requirements.txt
 else
-    ECHO "##### a directory named 'env' already exists ####"
+    echo "##### a directory named 'env' already exists ####"
 fi
 
-ECHO ""
+echo ""
 
 if [ ! -d "instance" ]
 then
-    ECHO 'create instance directory'
+    echo 'create instance directory'
     mkdir instance
     touch instance/__init__.py
     cp default_site_settings.confg instance/site_settings.py
 else
-    ECHO "###### a directory named 'instance' already exists #####"
+    echo "###### a directory named 'instance' already exists #####"
 fi
 
-ECHO ""
+echo ""
 
-ECHO "Don't forget to update instance/site_settings.py before launching the app for the first time"
+echo "Don't forget to update instance/site_settings.py before launching the app for the first time"
 
 
