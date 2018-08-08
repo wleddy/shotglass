@@ -1,4 +1,4 @@
-#.py[co]
+*.py[co]
 env/
 .idea
 *.log
@@ -7,3 +7,6 @@ instance/
 __pycache__
 .pytest_cache
 .coverage
+
+## The User repo has it's own master
+#users/
