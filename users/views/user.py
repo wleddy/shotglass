@@ -133,15 +133,7 @@ def edit(rec_handle=None):
             #ensure a value for the check box
             rec.active = int(request.form.get('active',rec.active))
             
-            user_name = ''
-            if 'new_username' in request.form:
-                user_name = request.form['new_username'].strip()
-            
-                if user_name != '':
-                    rec.username = user_name
-                else:
-                    rec.username = None
-        
+            set_username_from_form(rec)        
             set_password_from_form(rec)
     
             try:
@@ -249,6 +241,7 @@ def register():
             user.update(rec,request.form)
             rec.active = 0 # Self registered accounts are inactive by default
             set_password_from_form(rec)
+            set_username_from_form(rec)
             rec.access_token = get_access_token()
             rec.access_token_expires = time() + (3600 * 48)
             
@@ -288,6 +281,8 @@ def register():
 @table_access_required(User)
 def activate():
     """Allow administrator to activate a new user"""
+    from users.mailer import send_message
+    
     activate = request.args.get('activate',None)
     if activate:
         user = User(g.db)
@@ -298,6 +293,16 @@ def activate():
             rec.access_token_expires = None
             user.save(rec)
             g.db.commit()
+            
+            # inform user that their account is now active
+            full_name = '{} {}'.format(rec.first_name,rec.last_name).strip()
+            to=[(full_name,rec.email)]
+            context={'rec':rec,}
+            subject = 'Account Activated'
+            html_template = 'user/email/activation_complete.html'
+            text_template = 'user/email/activation_complete.txt'
+            send_message(to,context=context,subject=subject,html_template=html_template,text_template=text_template)
+            
         else:
             flash("User not found with access_token: {}".format(activate))
             return redirect(url_for('home'))
@@ -402,4 +407,14 @@ def set_password_from_form(rec):
             rec.password = user_password
         else:
             rec.password = None
+    
+def set_username_from_form(rec):
+    user_name = ''
+    if 'new_username' in request.form:
+        user_name = request.form['new_username'].strip()
+    
+        if user_name != '':
+            rec.username = user_name
+        else:
+            rec.username = None
     
