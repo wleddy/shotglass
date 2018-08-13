@@ -55,7 +55,13 @@ Next you need to edit the file `passenger_wsgi.py`. Comment out the default text
 
     `from app import app as application`
     
-Go back to the Python Setup App panel and restart your app.
+from the terminal, run `python app.py`
+
+This will start the development web server but also creates the default database records and is a good way to check that 
+everything is working.
+
+Go back to the Python Setup App panel and restart your app or from the terminal in the app root directory type 
+`touch tmp/restart.txt`
 
 
 Required packages:
