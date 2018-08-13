@@ -52,9 +52,9 @@ def _teardown(exception):
         g.db.close()
 
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+from www.views import home
+app.register_blueprint(home.mod)
+
 
 from users.views import user, login, role
 app.register_blueprint(user.mod)

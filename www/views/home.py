@@ -1,11 +1,7 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response
 from users.admin import login_required, table_access_required
-from jump.models import Sighting, Trip, Bike
-from jump.views import jump
 from datetime import datetime
-import calendar
-from statistics import median
 import mistune # for Markdown rendering
 import os
 
@@ -23,10 +19,8 @@ def home():
     setExits()
 
     rendered_html = render_markdown_for('index.md')
-    report_data = get_report_data()
-    summary_data = jump.make_data_dict()
 
-    return render_template('index.html',rendered_html=rendered_html, data=summary_data,report_data=report_data)
+    return render_template('index.html',rendered_html=rendered_html,)
 
 
 @mod.route('/about', methods=['GET',])
