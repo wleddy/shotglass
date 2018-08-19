@@ -39,15 +39,17 @@ A2 Hosting uses this `passenger` system to run python apps on their system. Use 
     * set the "App Directory" to the directory you just cloned.
     * set the "App URI" to the URI visitors will use to access the site.
     * Click "Setup" to create your virtualenv. The path to the new is displayed there.
-5. Back at the terminal in your new directory type `nano instance/activate_env` use the new virtualenv path as:  
+5. Back at the terminal in your new directory type `nano instance/activate_env` use the new virtualenv path as: 
+ 
 `
 
     #!/bin/bash
 
     echo 'activating env from instance'
     source /home/< your account name >/virtualenv/< path to your project >/<version>/bin/activate
-    
+
 `
+
 6. Save it, exit and type `. activate_env` to enter the virtualenv.
 7. Type `pip install -r requirements.txt`
 8. Edit instance/site_settings.py to add all your secrets.
@@ -56,7 +58,7 @@ A2 Hosting uses this `passenger` system to run python apps on their system. Use 
 database records and is a good way to check that 
 everything is working. If all goes well, type control + c to quit the dev server.
 11. Type `touch tmp/restart.txt` to restart the app. You need to do this every time you make a change to the app.
-12. In the App URI directory, A2 creates a default robots.txt file. Delete that to use the system at www.views.home.robots
+12. In the App URI directory, A2 creates a default robots.txt file. Delete that to use the system at `www.views.home.robots`
 
 ***Easy as 1-2-3*** plus 9
 
