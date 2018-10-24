@@ -5,8 +5,7 @@
 ## ALL CONFIG NAMES MUST BE UPPERCASE!  ##
 
 # The basics...
-#SERVER_NAME = "example.com" # this has to be a real host name
-HOST_NAME = 'localhost:5000' # this should usually be SERVER_NAME
+HOST_NAME = 'localhost:5000' 
 SITE_NAME = "My New Web Site"
 DEBUG = True
 REQUIRE_SSL = (not DEBUG)
@@ -15,9 +14,21 @@ HOST_PROTOCOL = "http"
 if REQUIRE_SSL:
     HOST_PROTOCOL = "https"
 
+# Timezone setting
+# Un-comment one or add yours
+# for full list see pytz.all_timezones
+
+TIME_ZONE = 'US/Pacific'
+#TIME_ZONE = 'US/Mountain'
+#TIME_ZONE = 'US/Central'
+#TIME_ZONE = 'US/Eastern'
+
 CGI_ROOT_FIX_APPLY = False # Some webservers mess up the root url
 CGI_ROOT_FIX_PATH = "/" #this is usually correct path
 
+############################################
+### You Must ABSOLUTELY change this key
+############################################
 SECRET_KEY = "somereallylongstringtouseasakey"
 
 # set session expiration in seconds
