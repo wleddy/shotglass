@@ -4,6 +4,7 @@ from flask_mail import Mail
 from users.database import Database
 from users.models import User,Role,init_db, Pref
 from users.admin import Admin
+from users.jinja_filters import register_jinja_filters
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -15,6 +16,8 @@ from werkzeug.contrib.fixers import CGIRootFix
 if app.config['CGI_ROOT_FIX_APPLY'] == True:
     fixPath = app.config.get("CGI_ROOT_FIX_PATH","/")
     app.wsgi_app = CGIRootFix(app.wsgi_app, app_root=fixPath)
+
+register_jinja_filters(app)
 
 
 # Create a mailer obj
