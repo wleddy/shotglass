@@ -1,7 +1,7 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response
 from users.admin import login_required, table_access_required
-from users.utils import render_markdown_for
+from takeabeltof.utils import render_markdown_for
 from datetime import datetime
 
 mod = Blueprint('www',__name__, template_folder='../templates', url_prefix='')
@@ -39,7 +39,7 @@ def contact():
     setExits()
     g.name = 'Contact Us'
     from app import app
-    from users.mailer import send_message
+    from takeabeltof.mailer import send_message
     rendered_html = render_markdown_for(__file__,mod,'contact.md')
     show_form = True
     context = {}
