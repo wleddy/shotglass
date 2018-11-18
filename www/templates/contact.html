@@ -3,12 +3,13 @@
 {% block body %}
 
 <h2>Contact Us</h2>
+{% if show_form %}
 {% if rendered_html %}
 {{ rendered_html | safe()}}
+{% else %}
+<p>Please fill out the form below if you have something to say on the subject.</p>
 {% endif %}
 
-{% if show_form %}
-<p>Please fill out the form below if you have something to say on the subject.</p>
 
 <form action="{{ g.contactURL }}" method="post" accept-charset="utf-8">
     <fieldset>
