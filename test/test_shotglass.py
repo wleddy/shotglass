@@ -45,6 +45,10 @@ def test_home(client):
     assert b'Hello World' in result.data 
     assert b"No users found" not in result.data 
     
+def test_404(client):
+    result = client.get('/nothingtofind')   
+    assert result.status_code == 404
+    assert b'Sorry' in result.data 
     
 ############################ The final 'test' ########################
 ######################################################################
