@@ -10,6 +10,11 @@ SITE_NAME = "My New Web Site"
 DEBUG = True
 REQUIRE_SSL = (not DEBUG)
 
+CONTACT_EMAIL_ADDR = "admin@example.com"
+CONTACT_NAME = "Some Name"
+
+REPORT_404_ERRORS = DEBUG
+
 HOST_PROTOCOL = "http"
 if REQUIRE_SSL:
     HOST_PROTOCOL = "https"
