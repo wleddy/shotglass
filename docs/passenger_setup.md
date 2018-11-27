@@ -13,14 +13,14 @@ as so it may not work in all cases
 __Create .htaccess file__: if there is not one already, you need to create an file named `.htaccess` in the **document root** 
 directory of your site. The file should contain something like this:
 
-`
+```
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
 PassengerAppRoot "/home/leddysle/Sites/lindcraft/lindcraft2"
 PassengerBaseURI "/"
 PassengerPython "/home/leddysle/virtualenv/Sites_lindcraft_lindcraft2/3.6/bin/python3.6"
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 
-`
+```
 
 The "PassengerAppRoot" is the path to your python app. "PassengerPython" is the path to the virtual environment to use with
 the app.
