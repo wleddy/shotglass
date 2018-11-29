@@ -38,7 +38,7 @@ def about():
 @mod.route('/contact/', methods=['POST', 'GET',])
 def contact():
     setExits()
-    g.name = 'Contact Us'
+    g.title = 'Contact Us'
     from app import app
     from takeabeltof.mailer import send_message
     rendered_html = render_markdown_for(__file__,mod,'contact.md')
@@ -47,6 +47,7 @@ def contact():
     success = True
     mes = "No errors yet..."
     if request.form:
+        #import pdb;pdb.set_trace()
         if request.form['email'] and request.form['comment']:
             context.update({'date':datetime_as_string()})
             for key, value in request.form.items():
