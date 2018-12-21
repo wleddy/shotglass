@@ -17,7 +17,7 @@ def setExits():
 @mod.route('/')
 def home():
     setExits()
-
+    g.suppress_page_header = True
     rendered_html = render_markdown_for(__file__,mod,'index.md')
 
     return render_template('markdown.html',rendered_html=rendered_html,)
@@ -42,13 +42,20 @@ def contact():
     from app import app
     from takeabeltof.mailer import send_message
     rendered_html = render_markdown_for(__file__,mod,'contact.md')
+    
     show_form = True
     context = {}
     success = True
+    passed_quiz = False
     mes = "No errors yet..."
     if request.form:
         #import pdb;pdb.set_trace()
-        if request.form['email'] and request.form['comment']:
+        quiz_answer = request.form.get('quiz_answer',"A")
+        if quiz_answer.upper() == "C":
+            passed_quiz = True
+        else:
+            flash("You did not answer the quiz correctly.")
+        if request.form['email'] and request.form['comment'] and passed_quiz:
             context.update({'date':datetime_as_string()})
             for key, value in request.form.items():
                 context.update({key:value})
@@ -99,7 +106,7 @@ def contact():
             flash('You left some stuff out.')
             
     if success:
-        return render_template('contact.html',rendered_html=rendered_html, show_form=show_form, context=context)
+        return render_template('contact.html',rendered_html=rendered_html, show_form=show_form, context=context,passed_quiz=passed_quiz)
             
     handle_request_error(mes,request,500)
     flash(mes)

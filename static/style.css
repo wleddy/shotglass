@@ -17,6 +17,17 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	vertical-align: baseline;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+span, label {
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: inherit;
+	font-family:inherit;
+	vertical-align: inherit;
+}
 /* Remember to define focus styles! */
 :focus {
 
@@ -43,6 +54,9 @@ p, a
 
 strong {
     font-weight:800;
+}
+em {
+    font-style:italic;
 }
 a, .script-link, .cancel-link
 {
@@ -365,9 +379,10 @@ div#footer > p {
 */
 
 @media only screen 
-  and (min-device-width: 375px) 
-  and (max-device-width: 667px) 
-  and (-webkit-min-device-pixel-ratio: 2)  {
+  and (min-width: 320px) 
+  and (max-width: 667px) 
+  /*and (-webkit-min-device-pixel-ratio: 2)*/  
+  {
     /* small screen reset */
     html, body, div, span, object, iframe,
     p, blockquote, pre,

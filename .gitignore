@@ -8,6 +8,10 @@ __pycache__
 .pytest_cache
 .coverage
 
+## Passenger web app files
+tmp/
+passenger.*
+
 ## The User repo has it's own master
 users/
 ## I keep some utilities here
