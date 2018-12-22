@@ -68,6 +68,7 @@ MAX_CONTENT_LENGTH = 300000
 
 ## some administrative settings
 ALLOW_USERNAME_CHANGE = True
+ALLOW_USER_SIGNUP = True
 
 #Map Box Settings...
 #MAPBOX_PROJECT_ID = ""
