@@ -1,5 +1,5 @@
-<div id="nav">
-  <nav class="w3-sidebar w3-bar-block w3-collapse w3-right w3-card w3-animate-right w3-pale-green menu_width" style="position:absolute;right:0;top:0pt;" id="primary-nav">
+<div id="nav" style="overflow:hidden;">
+  <div class="w3-sidebar w3-bar-block w3-collapse w3-right w3-card w3-animate-right w3-pale-green menu_width" style="height:100vh;overflow:scroll;position:absolute;right:0;top:0pt;" id="primary-nav">
       <a href="javascript:void(0)" onclick="w3_close('primary-nav');w3_show('hamburger');" 
         class="w3-button w3-bar-item w3-hide-large w3-text-grey">Close &times;</a>
               <a class="w3-bar-item w3-button w3-border w3-hover-teal" href="/">Home</a>
@@ -27,7 +27,7 @@
                     </div></div>
             {% endif %} <!-- g.admin -->
         {% endif %} <!-- g.user -->
-
+    </div>
 </div>
 
 
