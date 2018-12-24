@@ -40,7 +40,7 @@
     <p>{{ input_field(rec.expires,"expire_marker",label="Expires",placeholder="Never")}}</p>
     
     {# a select element #}
-    <p>{{ select_field(roles_select,"Role",extras='multiple size="5"', class="w3-border") }}
+    <p>{{ select_field("roles_select","Role",extras='multiple size="5"', class="w3-border") }}
             {% for role in roles %}
                 {% if role.name == "super" and "super" is not in session_roles %}
                 {% else %}
