@@ -63,6 +63,11 @@ PERMANENT_SESSION_LIFETIME = 60*20
 DATABASE_NAME= "database.sqlite"
 DATABASE_PATH= 'instance/' + DATABASE_NAME
 
+# You can locate some or all of your static files in another directory
+# The default static directory will be tried if not found here.
+# (Be sure that the path does NOT start with a slash)
+LOCAL_STATIC_FOLDER = "instance/static"
+
 # Uploads ...
 MAX_CONTENT_LENGTH = 300000
 

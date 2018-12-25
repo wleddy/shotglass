@@ -2,9 +2,10 @@ from flask import Flask, render_template, g, session, url_for, request, redirect
 from flask_mail import Mail
 
 from takeabeltof.database import Database
+from takeabeltof.utils import send_static_file
+from takeabeltof.jinja_filters import register_jinja_filters
 from users.models import User,Role,init_db, Pref
 from users.admin import Admin
-from takeabeltof.jinja_filters import register_jinja_filters
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -67,14 +68,19 @@ def _teardown(exception):
 def page_not_found(error):
     from takeabeltof.utils import handle_request_error
     handle_request_error(error,request,404)
+    g.title = "Page Not Found"
     return render_template('404.html'), 404
 
 @app.errorhandler(500)
 def server_error(error):
     from takeabeltof.utils import handle_request_error
     handle_request_error(error,request,500)
+    g.title = "Server Error"
     return render_template('500.html'), 500
 
+@app.route('/static_instance/<path:filename>')
+def static_instance(filename):
+    return send_static_file(filename)
 
 from www.views import home
 app.register_blueprint(home.mod)

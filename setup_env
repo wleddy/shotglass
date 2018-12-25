@@ -24,6 +24,7 @@ then
     mkdir instance
     touch instance/__init__.py
     cp default_site_settings.confg instance/site_settings.py
+    mkdir instance/static
 else
     echo "###### a directory named 'instance' already exists #####"
 fi
