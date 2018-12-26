@@ -45,7 +45,10 @@
 </head>
 <body>
 <div id="contain" >
-    <div id="dialog"></div><div id="modal-form-contain"><div id="modal-form"></div></div>
+    <div id="dialog"></div>
+    <div id="modal-form-contain" class="w3-modal" style="overflow:hidden;padding-top:20pt!important;">
+        <div id="modal-form" class="w3-container w3-modal-content w3-card-4 w3-animate-top" style="max-height:95vh;overflow:scroll;"></div>
+    </div>
     {% include "header.html"%}
     {% if g.user or True %}
     {% include "top-nav.html"%}
