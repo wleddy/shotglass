@@ -1,11 +1,12 @@
-from flask import Flask, render_template, g, session, url_for, request, redirect
+from flask import Flask, render_template, g, session, url_for, request, redirect, safe_join, flash
 from flask_mail import Mail
 
 from takeabeltof.database import Database
 from takeabeltof.utils import send_static_file
 from takeabeltof.jinja_filters import register_jinja_filters
-from users.models import User,Role,init_db, Pref
+from users.models import User,Role,Pref
 from users.admin import Admin
+import os
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -24,10 +25,41 @@ register_jinja_filters(app)
 # Create a mailer obj
 mail = Mail(app)
 
-
-def get_db(filespec=app.config['DATABASE_PATH']):
+def initalize_all_tables(db=None):
+    """Place code here as needed to initialze all the tables for this site"""
+    if not db:
+        db = get_db()
+        
+    from users.models import init_db as users_init_db 
+    users_init_db(db)
+    
+    
+def get_db(filespec=None):
+    """Return a connection to the database.
+    If the db path does not exist, create it and initialize the db"""
+    
+    if not filespec:
+        filespec = app.config['DATABASE_PATH']
+        
+    initialize = False
     if 'db' not in g:
-        g.db = Database(filespec).connect()
+        # test the path, if not found, create it
+        root_path = os.path.dirname(os.path.abspath(__name__))
+        if not os.path.isfile(safe_join(root_path,filespec)):
+            initialize = True
+            # split it into directories and create them if needed
+            path_list = filespec.split("/")
+            current_path = root_path
+            for d in range(len(path_list)-1):
+                current_path = safe_join(current_path,path_list[d])
+                if not os.path.isdir(current_path):
+                    os.mkdir(current_path, mode=0o744)
+                    
+        
+    g.db = Database(filespec).connect()
+    if initialize:
+        initalize_all_tables(g.db)
+            
     return g.db
 
 
@@ -36,7 +68,36 @@ def _before():
     # Force all connections to be secure
     if app.config['REQUIRE_SSL'] and not request.is_secure :
         return redirect(request.url.replace("http://", "https://"))
+    
+    # update settings for the requested host
+    if "SUB_DOMAIN_SETTINGS" in app.config and len(app.config["SUB_DOMAIN_SETTINGS"]) > 0:
+        try:
+            request_server = request.url
+            request_server = request_server[request_server.find('://')+3:]
+            #strip the port if present
+            pos = request_server.find(":")
+            if pos > 0:
+                request_server = request_server[:pos]
         
+            request_server = request_server.split(".")[0] # the first part of the host name
+            server = None
+            for value in app.config['SUB_DOMAIN_SETTINGS']:
+                if value['config_name'] == request_server:
+                    server = value
+                    break
+        
+            #did not find a server to match, use default
+            if not server:
+                raise ValueError
+        except:
+            if app.config['DEBUG']:
+                #raise ValueError("SUB_DOMAIN_SETTINGS could not be determined")
+                flash("Using Default SUB_DOMAIN_SETTINGS")
+            server = app.config['SUB_DOMAIN_SETTINGS'][0]
+        
+        for key, value in server.items():
+            app.config.update({key.upper():value})
+                    
     get_db()
     
     # Is the user signed in?
@@ -80,7 +141,11 @@ def server_error(error):
 
 @app.route('/static_instance/<path:filename>')
 def static_instance(filename):
-    return send_static_file(filename)
+    local_path = None
+    if "LOCAL_STATIC_FOLDER" in app.config:
+        local_path = app.config['LOCAL_STATIC_FOLDER']
+
+    return send_static_file(filename,local_path=local_path)
 
 from www.views import home
 app.register_blueprint(home.mod)
@@ -92,9 +157,6 @@ app.register_blueprint(role.mod)
 app.register_blueprint(pref.mod)
 
 if __name__ == '__main__':
-    with app.app_context():
-        init_db(get_db())
-        get_db().close()
         
     #app.run(host='172.20.10.2', port=5000)
     app.run()
