@@ -1,12 +1,11 @@
 from flask import Flask, render_template, g, session, url_for, request, redirect, safe_join, flash
 from flask_mail import Mail
-
 from takeabeltof.database import Database
 from takeabeltof.utils import send_static_file
 from takeabeltof.jinja_filters import register_jinja_filters
 from users.models import User,Role,Pref
 from users.admin import Admin
-import os
+import os    
 
 # Create app
 app = Flask(__name__, instance_relative_config=True)
@@ -22,8 +21,8 @@ if app.config['CGI_ROOT_FIX_APPLY'] == True:
 register_jinja_filters(app)
 
 
-# Create a mailer obj
 mail = Mail(app)
+
 
 def initalize_all_tables(db=None):
     """Place code here as needed to initialze all the tables for this site"""
@@ -33,6 +32,52 @@ def initalize_all_tables(db=None):
     from users.models import init_db as users_init_db 
     users_init_db(db)
     
+
+def update_config_for_host():
+    #update_config_for_host()
+    # update settings for the requested host
+    #import pdb;pdb.set_trace()
+    if "SUB_DOMAIN_SETTINGS" in app.config and len(app.config["SUB_DOMAIN_SETTINGS"]) > 0:
+        try:
+            request_server = request.url
+            request_server = request_server[request_server.find('://')+3:]
+            #strip the port if present
+            pos = request_server.find(":")
+            if pos > 0:
+                request_server = request_server[:pos]
+    
+            request_server = request_server.split(".")[0] # the first part of the host name
+            server = None
+            for value in app.config['SUB_DOMAIN_SETTINGS']:
+                if value['config_name'] == request_server:
+                    server = value
+                    break
+    
+            #did not find a server to match, use default
+            if not server:
+                raise ValueError
+        except:
+            if app.config['DEBUG']:
+                #raise ValueError("SUB_DOMAIN_SETTINGS could not be determined")
+                flash("Using Default SUB_DOMAIN_SETTINGS")
+            server = app.config['SUB_DOMAIN_SETTINGS'][0]
+    
+        for key, value in server.items():
+            app.config.update({key.upper():value})
+
+        # refresh mail in case any of the mail related settings changed
+        mail = Mail(app)
+        
+def get_app_config():
+    """Returns a copy of the current app.config.
+    This makes it possible for other modules to get access to the config
+    with the values as updated for the current host.
+    Import this method rather than importing app
+    """
+    #import pdb;pdb.set_trace()
+    update_config_for_host()
+    return app.config
+
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -69,35 +114,8 @@ def _before():
     if app.config['REQUIRE_SSL'] and not request.is_secure :
         return redirect(request.url.replace("http://", "https://"))
     
-    # update settings for the requested host
-    if "SUB_DOMAIN_SETTINGS" in app.config and len(app.config["SUB_DOMAIN_SETTINGS"]) > 0:
-        try:
-            request_server = request.url
-            request_server = request_server[request_server.find('://')+3:]
-            #strip the port if present
-            pos = request_server.find(":")
-            if pos > 0:
-                request_server = request_server[:pos]
-        
-            request_server = request_server.split(".")[0] # the first part of the host name
-            server = None
-            for value in app.config['SUB_DOMAIN_SETTINGS']:
-                if value['config_name'] == request_server:
-                    server = value
-                    break
-        
-            #did not find a server to match, use default
-            if not server:
-                raise ValueError
-        except:
-            if app.config['DEBUG']:
-                #raise ValueError("SUB_DOMAIN_SETTINGS could not be determined")
-                flash("Using Default SUB_DOMAIN_SETTINGS")
-            server = app.config['SUB_DOMAIN_SETTINGS'][0]
-        
-        for key, value in server.items():
-            app.config.update({key.upper():value})
-                    
+    update_config_for_host()
+    
     get_db()
     
     # Is the user signed in?
