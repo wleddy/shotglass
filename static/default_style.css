@@ -9,6 +9,11 @@
 
 p {margin-top:0;margin-bottom:.4em;}
 
+hr {
+    border-top: 1px solid #737373;
+    margin: 15px 0;
+{
+
 /* colors */
 /* Teal & pale green */
 .w3-primary-color,.w3-primary-hover-color:hover,
