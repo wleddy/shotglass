@@ -155,7 +155,8 @@ def server_error(error):
 
 @app.route('/static/<path:filename>')
 def static(filename):
-    print('local static')
+    """This takes full responsibility for loading static content"""
+        
     local_path = None
     if "LOCAL_STATIC_FOLDER" in app.config:
         local_path = app.config['LOCAL_STATIC_FOLDER']
