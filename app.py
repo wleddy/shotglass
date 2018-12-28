@@ -39,34 +39,28 @@ def update_config_for_host():
     #import pdb;pdb.set_trace()
     if "SUB_DOMAIN_SETTINGS" in app.config and len(app.config["SUB_DOMAIN_SETTINGS"]) > 0:
         try:
-            request_server = request.url
-            request_server = request_server[request_server.find('://')+3:]
-            #strip the port if present
-            pos = request_server.find(":")
-            if pos > 0:
-                request_server = request_server[:pos]
-    
-            request_server = request_server.split(".")[0] # the first part of the host name
             server = None
             for value in app.config['SUB_DOMAIN_SETTINGS']:
-                if value['config_name'] == request_server:
+                if value.get('host_name') == request.host:
                     server = value
                     break
     
-            #did not find a server to match, use default
             if not server:
+                #did not find a server to match, use default
                 raise ValueError
+                
+            for key, value in server.items():
+                app.config[key.upper()] = value
+                
+            # refresh mail since settings changed
+            mail = Mail(app)
+                
         except:
+            # Will use the default settings
             if app.config['DEBUG']:
                 #raise ValueError("SUB_DOMAIN_SETTINGS could not be determined")
                 flash("Using Default SUB_DOMAIN_SETTINGS")
-            server = app.config['SUB_DOMAIN_SETTINGS'][0]
     
-        for key, value in server.items():
-            app.config.update({key.upper():value})
-
-        # refresh mail in case any of the mail related settings changed
-        mail = Mail(app)
         
 def get_app_config():
     """Returns a copy of the current app.config.
@@ -175,7 +169,11 @@ app.register_blueprint(role.mod)
 app.register_blueprint(pref.mod)
 
 if __name__ == '__main__':
+    
+    with app.app_context():
+        # create the default database if needed
+        initalize_all_tables()
         
-    #app.run(host='172.20.10.2', port=5000)
+    #app.run(host='localhost', port=8000)
     app.run()
     

@@ -55,7 +55,7 @@ LOCAL_STATIC_FOLDER = "instance/static"
 
 # A list of dictionaries of settings for sites that share this config and virtualenv
 SUB_DOMAIN_SETTINGS = [
-    {"config_name": "default", "host_name": HOST_NAME, "database_path": DATABASE_PATH, "time_zone": TIME_ZONE, "local_static_folder": LOCAL_STATIC_FOLDER, "contact_email_addr": CONTACT_EMAIL_ADDR, "contact_name": CONTACT_NAME},
+    {"host_name": HOST_NAME, "database_path": DATABASE_PATH, "time_zone": TIME_ZONE, "local_static_folder": LOCAL_STATIC_FOLDER, "contact_email_addr": CONTACT_EMAIL_ADDR, "contact_name": CONTACT_NAME},
     ]
 
 #############################################
