@@ -8,7 +8,9 @@ from users.admin import Admin
 import os    
 
 # Create app
-app = Flask(__name__, instance_relative_config=True)
+# setting static_folder to None allows me to handle loading myself
+app = Flask(__name__, instance_relative_config=True,
+        static_folder=None)
 app.config.from_pyfile('site_settings.py', silent=True)
 
 
@@ -151,8 +153,9 @@ def server_error(error):
     g.title = "Server Error"
     return render_template('500.html'), 500
 
-@app.route('/static_instance/<path:filename>')
-def static_instance(filename):
+@app.route('/static/<path:filename>')
+def static(filename):
+    print('local static')
     local_path = None
     if "LOCAL_STATIC_FOLDER" in app.config:
         local_path = app.config['LOCAL_STATIC_FOLDER']
