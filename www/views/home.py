@@ -1,8 +1,9 @@
 from flask import request, session, g, redirect, url_for, abort, \
-     render_template, flash, Blueprint, Response
+     render_template, flash, Blueprint, Response, safe_join
 from users.admin import login_required, table_access_required
 from takeabeltof.utils import render_markdown_for, printException, handle_request_error
 from takeabeltof.date_utils import datetime_as_string
+import os
 
 
 mod = Blueprint('www',__name__, template_folder='../templates', url_prefix='')
@@ -18,7 +19,7 @@ def setExits():
 def home():
     setExits()
     g.suppress_page_header = True
-    rendered_html = render_markdown_for(__file__,mod,'index.md')
+    rendered_html = render_markdown_for('index.md',__file__,mod)
 
     return render_template('markdown.html',rendered_html=rendered_html,)
 
@@ -29,7 +30,7 @@ def about():
     setExits()
     g.title = "About"
     
-    rendered_html = render_markdown_for(__file__,mod,'about.md')
+    rendered_html = render_markdown_for('about.md',__file__,mod)
             
     return render_template('markdown.html',rendered_html=rendered_html)
 
@@ -41,7 +42,7 @@ def contact():
     g.title = 'Contact Us'
     from app import app
     from takeabeltof.mailer import send_message
-    rendered_html = render_markdown_for(__file__,mod,'contact.md')
+    rendered_html = render_markdown_for('contact.md',__file__,mod)
     
     show_form = True
     context = {}
@@ -112,6 +113,34 @@ def contact():
     flash(mes)
     return render_template('500.html'), 500
     
+@mod.route('/docs', methods=['GET',])
+@mod.route('/docs/', methods=['GET',])
+@mod.route('/docs/<path:filename>', methods=['GET',])
+def docs(filename=None):
+    setExits()
+    g.title = "Docs"
+    from app import get_app_config
+    app_config = get_app_config()
+    
+    #import pdb;pdb.set_trace()
+    if not filename:
+        filename = "README.md"
+    else:
+        if 'DOC_DIRECTORY_LIST' in app_config:
+            for path in app_config['DOC_DIRECTORY_LIST']:
+                path = path.strip('/')
+                filename = os.path.join(path,filename.strip('/'))
+                temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)), filename)
+                if os.path.isfile(temp_path):
+                    break
+                    
+        else:
+            # default doc dir
+            filename = os.path.join('docs',filename.strip('/'))            
+            
+    rendered_html = render_markdown_for(filename,__file__,mod)
+
+    return render_template('markdown.html',rendered_html=rendered_html)
     
     
 @mod.route('/robots.txt', methods=['GET',])

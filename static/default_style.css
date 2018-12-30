@@ -12,10 +12,11 @@ p {margin-top:0;margin-bottom:.4em;}
 hr {
     border-top: 1px solid #737373;
     margin: 15px 0;
-{
+}
 
 /* colors */
 /* Teal & pale green */
+
 .w3-primary-color,.w3-primary-hover-color:hover,
 .w3-drop-menu-section-color,.w3-drop-menu-section-color:hover,.w3-drop-menu-hover-color:hover
 {color:#fff!important;background-color:#009688!important}
@@ -24,7 +25,8 @@ hr {
 {color:#000!important;background-color:#ddffdd!important}
 
 /* amber and sand */
-/*.w3-primary-color,.w3-primary-hover-color:hover,
+/*
+.w3-primary-color,.w3-primary-hover-color:hover,
 .w3-drop-menu-section-color,.w3-drop-menu-section-color:hover,.w3-drop-menu-hover-color:hover
 {color:#000!important;background-color:#ffc107!important}
 .w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
@@ -33,7 +35,8 @@ hr {
 */
 
 /* indigo and blue */
-/*.w3-primary-color,.w3-primary-hover-color:hover,
+/*
+.w3-primary-color,.w3-primary-hover-color:hover,
 .w3-drop-menu-section-color,.w3-drop-menu-section-color:hover,.w3-drop-menu-hover-color:hover
 {color:#fff!important;background-color:#3f51b5!important}
 .w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
@@ -44,7 +47,7 @@ hr {
 /* for field labels and buttons */
 /* required fields */
 /* red */
-/*.w3-label-color,.w3-label-hover-color:hover{color:#000!important;background-color:#ddffdd!important}*/
+.w3-label-color,.w3-label-hover-color:hover{color:#000!important;background-color:#ddffdd!important}
 .w3-label-req,.w3-hover-label-req:hover{color:#000!important;background-color:#ffdddd!important}
 .w3-text-req,.w3-hover-text-req:hover{color:#f44336!important}
 

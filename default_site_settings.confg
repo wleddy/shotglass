@@ -48,16 +48,6 @@ TIME_ZONE = 'US/Pacific'
 DATABASE_NAME= "database.sqlite"
 DATABASE_PATH= 'instance/' + DATABASE_NAME
 
-# You can locate some or all of your static files in another directory
-# The default static directory will be tried if not found here.
-# (Be sure that the path does NOT start with a slash)
-LOCAL_STATIC_FOLDER = "instance/static"
-
-# A list of dictionaries of settings for sites that share this config and virtualenv
-SUB_DOMAIN_SETTINGS = [
-    {"host_name": HOST_NAME, "database_path": DATABASE_PATH, "time_zone": TIME_ZONE, "local_static_folder": LOCAL_STATIC_FOLDER, "contact_email_addr": CONTACT_EMAIL_ADDR, "contact_name": CONTACT_NAME},
-    ]
-
 #############################################
 ### These settings are probably Ok...
 #############################################
@@ -80,6 +70,9 @@ MAX_CONTENT_LENGTH = 300000
 ALLOW_USERNAME_CHANGE = True
 ALLOW_USER_SIGNUP = True
 
+## Places to look for documentation:
+DOC_DIRECTORY_LIST = ['','docs','takeabeltof','takeabeltof/docs','users','users/docs',]
+
 #Map Box Settings...
 #MAPBOX_PROJECT_ID = ""
 #MAPBOX_ACCESS_TOKEN = ""
@@ -87,4 +80,14 @@ ALLOW_USER_SIGNUP = True
 # Sets the default location when creating a new location pin if geolocation is not available
 #LOCATION_DEFAULT_LNG = -121.74439430236818
 #LOCATION_DEFAULT_LAT = 38.54422161206573
+
+# You can locate some or all of your static files in another directory
+# The default static directory will be tried if not found here.
+# (Be sure that the path does NOT start with a slash)
+LOCAL_STATIC_FOLDER = "instance/static"
+
+# A list of dictionaries of settings for sites that share this config and virtualenv
+SUB_DOMAIN_SETTINGS = [
+    {"host_name": HOST_NAME, "database_path": DATABASE_PATH, "time_zone": TIME_ZONE, "local_static_folder": LOCAL_STATIC_FOLDER, "contact_email_addr": CONTACT_EMAIL_ADDR, "contact_name": CONTACT_NAME},
+    ]
 
