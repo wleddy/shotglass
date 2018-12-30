@@ -22,7 +22,6 @@ if app.config['CGI_ROOT_FIX_APPLY'] == True:
 
 register_jinja_filters(app)
 
-#import pdb;pdb.set_trace()
 
 mail = Mail(app)
 
