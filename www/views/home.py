@@ -19,7 +19,7 @@ def setExits():
 def home():
     setExits()
     g.suppress_page_header = True
-    rendered_html = render_markdown_for('index.md',__file__,mod)
+    rendered_html = render_markdown_for('index.md',mod)
 
     return render_template('markdown.html',rendered_html=rendered_html,)
 
@@ -30,7 +30,7 @@ def about():
     setExits()
     g.title = "About"
     
-    rendered_html = render_markdown_for('about.md',__file__,mod)
+    rendered_html = render_markdown_for('about.md',mod)
             
     return render_template('markdown.html',rendered_html=rendered_html)
 
@@ -42,7 +42,7 @@ def contact():
     g.title = 'Contact Us'
     from app import app
     from takeabeltof.mailer import send_message
-    rendered_html = render_markdown_for('contact.md',__file__,mod)
+    rendered_html = render_markdown_for('contact.md',mod)
     
     show_form = True
     context = {}
@@ -138,7 +138,7 @@ def docs(filename=None):
             # default doc dir
             filename = os.path.join('docs',filename.strip('/'))            
             
-    rendered_html = render_markdown_for(filename,__file__,mod)
+    rendered_html = render_markdown_for(filename,mod)
 
     return render_template('markdown.html',rendered_html=rendered_html)
     
