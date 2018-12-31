@@ -25,6 +25,9 @@ register_jinja_filters(app)
 
 mail = Mail(app)
 
+def init_db(db=None):
+    # to support old code
+    initalize_all_tables(db)
 
 def initalize_all_tables(db=None):
     """Place code here as needed to initialze all the tables for this site"""
