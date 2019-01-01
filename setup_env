@@ -24,9 +24,20 @@ then
     mkdir instance
     touch instance/__init__.py
     cp default_site_settings.confg instance/site_settings.py
-    mkdir instance/static
 else
     echo "###### a directory named 'instance' already exists #####"
+fi
+
+echo ""
+
+if [ ! -d "resource" ]
+then
+    echo 'create resource directory'
+    mkdir resource
+    touch resource/__init__.py
+    mkdir resource/static
+else
+    echo "###### a directory named 'resource' already exists #####"
 fi
 
 echo ""
