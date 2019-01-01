@@ -29,8 +29,7 @@ A typical approach to setting up a new development project would be to:
 * clone it into your development machine
 * get the .zip of the shotglass repo (don't clone it. You're making a new project)
 * copy the contents of the .zip into your new project directory
-* cd into the directory and clone the 'takeabeltof' repo into it.
-* clone the 'users' repo in as well if you need it.
+* cd into the directory and clone the 'takeabeltof' & 'users' repos into it.
 * ensure that .gitignore includes "/users" and "/takeabeltof"
 * do an initial commit of your new project, but be sure NOT to include users
 * in the terminal run `. setup_env` This will create the instance directory where your private
