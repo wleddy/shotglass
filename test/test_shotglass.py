@@ -50,7 +50,7 @@ def test_404(client):
     assert b'Sorry' in result.data 
     
     
-def test_doc_instance(client):
+def test_refuse_instance(client):
     # any call with instnace in the url should be refused
     result = client.get('/docs/instance/site_settings.py')   
     assert result.status_code == 404
