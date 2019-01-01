@@ -126,12 +126,13 @@ def docs(filename=None):
     if not filename:
         filename = "README.md"
     else:
+        filename = filename.strip('/')
+        
         if 'DOC_DIRECTORY_LIST' in app_config:
             for path in app_config['DOC_DIRECTORY_LIST']:
-                path = path.strip('/')
-                filename = os.path.join(path,filename.strip('/'))
-                temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)), filename)
+                temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)),path.strip('/'),filename)
                 if os.path.isfile(temp_path):
+                    filename = temp_path
                     break
                     
         else:
