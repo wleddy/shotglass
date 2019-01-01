@@ -83,8 +83,7 @@ DOC_DIRECTORY_LIST = ['','docs','takeabeltof','takeabeltof/docs','users','users/
 
 # You can locate some or all of your static files in another directory
 # The default static directory will be tried if not found here.
-# (Be sure that the path does NOT start with a slash)
-LOCAL_STATIC_FOLDER = "instance/static"
+LOCAL_STATIC_FOLDER = "resource/static"
 
 # A list of dictionaries of settings for sites that share this config and virtualenv
 SUB_DOMAIN_SETTINGS = [
