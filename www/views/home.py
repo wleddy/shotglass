@@ -123,26 +123,34 @@ def docs(filename=None):
     app_config = get_app_config()
     
     #import pdb;pdb.set_trace()
+    
+    file_exists = False
     if not filename:
         filename = "README.md"
     else:
         filename = filename.strip('/')
         
-        if 'DOC_DIRECTORY_LIST' in app_config:
-            for path in app_config['DOC_DIRECTORY_LIST']:
-                temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)),path.strip('/'),filename)
-                if os.path.isfile(temp_path):
-                    filename = temp_path
-                    break
-                    
-        else:
-            # default doc dir
-            filename = os.path.join('docs',filename.strip('/'))            
+    # first try to get it as a (possibly) valid path
+    temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)),filename)
+    if not os.path.isfile(temp_path):
+        # try the default doc dir
+        temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)),'docs',filename)
+        
+    if not os.path.isfile(temp_path) and 'DOC_DIRECTORY_LIST' in app_config:
+        for path in app_config['DOC_DIRECTORY_LIST']:
+            temp_path = os.path.join(os.path.dirname(os.path.abspath(__name__)),path.strip('/'),filename)
+            if os.path.isfile(temp_path):
+                break
             
-    rendered_html = render_markdown_for(filename,mod)
-
-    return render_template('markdown.html',rendered_html=rendered_html)
-    
+    filename = temp_path
+    file_exists = os.path.isfile(filename)
+            
+    if file_exists:
+        rendered_html = render_markdown_for(filename,mod)
+        return render_template('markdown.html',rendered_html=rendered_html)
+    else:
+        #file not found
+        abort(404)
     
 @mod.route('/robots.txt', methods=['GET',])
 def robots():
