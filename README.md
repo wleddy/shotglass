@@ -29,13 +29,14 @@ A typical approach to setting up a new development project would be to:
 * clone it into your development machine
 * get the .zip of the shotglass repo (don't clone it. You're making a new project)
 * copy the contents of the .zip into your new project directory
-* cd into the directory and clone the 'takeabeltof' repo into it
-* clone the 'users' repo in as well
+* cd into the directory and clone the 'takeabeltof' repo into it.
+* clone the 'users' repo in as well if you need it.
 * ensure that .gitignore includes "/users" and "/takeabeltof"
 * do an initial commit of your new project, but be sure NOT to include users
 * in the terminal run `. setup_env` This will create the instance directory where your private
-  stuff is stored and will try to create virtualenv directory 'env' and pip the requirements into it.  
-  * See the note below about virtualenv and requirements.txt with A2 Hosting
+  stuff is stored and a 'resource' directory where you can put static content unique to the installation.  
+  It will also try to create virtualenv directory 'env' and pip the requirements into it.  
+  * See the note below about virtualenv and requirements.txt with A2 Hosting. 
 * Assuming everything went Ok, run `. activate_env` to enter your virtual environment.
 * Next, edit the file at `instance/site_settings.py` with all your secrets.
 * run python app.py to start the dev server and create the initial database. (unless your on A2, see below)
