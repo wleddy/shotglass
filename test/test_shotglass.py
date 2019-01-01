@@ -49,6 +49,21 @@ def test_404(client):
     assert result.status_code == 404
     assert b'Sorry' in result.data 
     
+    
+def test_doc_instance(client):
+    # any call with instnace in the url should be refused
+    result = client.get('/docs/instance/site_settings.py')   
+    assert result.status_code == 404
+    result = client.get('/instance/site_settings.py')   
+    assert result.status_code == 404
+    result = client.get('/docs/instance/')   
+    assert result.status_code == 404
+    result = client.get('/docs/instance/database.sqlite')   
+    assert result.status_code == 404
+    result = client.get('/instance/database.sqlite')   
+    assert result.status_code == 404
+    
+    
 ############################ The final 'test' ########################
 ######################################################################
 def test_finished():

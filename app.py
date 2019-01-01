@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, session, url_for, request, redirect, flash
+from flask import Flask, render_template, g, session, url_for, request, redirect, flash, abort
 from flask_mail import Mail
 from takeabeltof.database import Database
 from takeabeltof.utils import send_static_file
@@ -120,6 +120,10 @@ def _before():
     # Force all connections to be secure
     if app.config['REQUIRE_SSL'] and not request.is_secure :
         return redirect(request.url.replace("http://", "https://"))
+
+    #ensure that nothing is served from the instance directory
+    if 'instance' in request.url:
+        abort(404)
     
     update_config_for_host()
     
